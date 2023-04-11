@@ -1,13 +1,11 @@
 <script setup>
 import {ref} from 'vue'
-import { reactive } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 const store=useStore()
 const router = useRouter()
-const route = useRoute()
 
 const NoteTypes = computed (()=>store.state.NoteTypes)
 
@@ -36,7 +34,6 @@ function cancelAddNote() {
     router.push('/Main')
 }
 
-const test=ref('1')
 </script>   
 
 <template>

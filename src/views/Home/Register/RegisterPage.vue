@@ -1,10 +1,9 @@
 <script setup>
 import { User,Key } from '@element-plus/icons-vue'
 import {ref} from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter} from 'vue-router'
 
 const router = useRouter()
-const route = useRoute()
 
 const Username=ref('')
 const Password1=ref('')

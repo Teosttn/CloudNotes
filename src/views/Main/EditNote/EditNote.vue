@@ -1,8 +1,7 @@
 <script setup>
 import {ref} from 'vue'
-import { reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { computed,onBeforeMount,onMounted } from 'vue';
+import { computed,onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 
 const store=useStore()
@@ -33,7 +32,6 @@ function cancelEditNote() {
     router.push('/Main')
 }
 
-const test=ref('1')
 </script>   
 
 <template>

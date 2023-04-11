@@ -9,17 +9,15 @@ import {
   Plus,
   Edit,
   Delete,
-  Download,
-  LocationInformation, 
+  Download, 
 } from '@element-plus/icons-vue'
 import NoteList from '../../components/NoteList.vue'
 import SideBar from '../../components/SideBar.vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import TypeDialog from '../../components/TypeDialog.vue'
 import ConfirmDelete from '../../components/ConfirmDelete.vue'
 
 const router = useRouter()
-const route = useRoute()
 const store = useStore()
 
 

@@ -1,5 +1,4 @@
 <script setup>
-import {ref} from 'vue'
 import {LocationInformation, Plus,ArrowDown,Delete} from '@element-plus/icons-vue'
 import { computed } from 'vue';
 import { useStore } from 'vuex';

@@ -1,13 +1,11 @@
 <script setup>
-import {ref,onBeforeMount,watch, compile} from 'vue'
+import {watch} from 'vue'
 import {Edit,Delete} from '@element-plus/icons-vue'
-import { indexOf } from 'lodash';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
-const route = useRoute()
 const store = useStore()
 
 const startNum = computed(() => store.state.startNum) 
