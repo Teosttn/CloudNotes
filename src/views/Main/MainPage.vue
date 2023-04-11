@@ -32,13 +32,13 @@ function deleteNotes(){
   var sum=computed(()=>store.state.chosenNotes)
   if(sum.value==0){
     ElMessage({
-      message: '请选中要删除的笔记',
+      message: '请选中要删除的笔记！',
       type: 'warning',
     })
   }
   else{
     ElMessage({
-      message: '批量删除笔记成功',
+      message: '批量删除笔记成功！',
       type: 'success',
     })
   }
@@ -56,7 +56,7 @@ function editNote(){
   console.log(sum.value);
   if(sum.value==0){
     ElMessage({
-      message: '请选中要修改的笔记',
+      message: '请选中要修改的笔记！',
       type: 'warning',
     })
   }
@@ -66,7 +66,7 @@ function editNote(){
   }
   else {
     ElMessage({
-      message: '仅支持修改单个笔记',
+      message: '仅支持修改单个笔记！',
       type: 'error',
     })
   }
