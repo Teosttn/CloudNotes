@@ -1,18 +1,42 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-const Home = () => import('../views/Home.vue')
-const Page1 = () => import('../views/Pages/Page1.vue')
+const Home =()=> import('../views/Home/Home.vue')
+const Register =()=> import('../views/Home/Register/RegisterPage.vue')
+const Main =()=> import('../views/Main/MainPage.vue')
+const Test =()=> import('../views/Main/Test/Test.vue')
+const AddNote =()=> import('../views/Main/AddNote/AddNote.vue')
+const EditNote =()=> import('../views/Main/EditNote/EditNote.vue')
 
 const routes= [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path:'/',
+    name:Home,
+    component:Home
   },
   {
-    path: '/Page1',
-    name: 'Page1',
-    component: Page1
+    path:'/Register',
+    name:Register,
+    component:Register
+  },
+  {
+    path:'/Main',
+    name:Main,
+    component:Main
+  },
+  {
+    path:'/Main/Test',
+    name:Test,
+    component:Test
+  },
+  {
+    path:'/Main/AddNote',
+    name:AddNote,
+    component:AddNote,
+  },
+  {
+    path:'/Main/EditNote',
+    name:EditNote,
+    component:EditNote,
   }
 ]
 
