@@ -1,3 +1,7 @@
+<script setup>
+import {MostlyCloudy,User,ArrowDown} from '@element-plus/icons-vue'
+</script>
+
 <!-- 头部栏 -->
 <template>
     <div>

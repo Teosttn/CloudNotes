@@ -12,6 +12,7 @@
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { computed } from 'vue';
+import {Plus,Edit,Delete,Download} from '@element-plus/icons-vue'
 const router = useRouter()
 const store = useStore()
 // 点击新增按钮
