@@ -1,5 +1,5 @@
 <script setup>
-import TheHeading from './Header/TheHeading.vue'
+import TheHeading from './header/TheHeading.vue'
 import TheToolBox from './body/Note/TheToolBox.vue'
 import NoteList from './body/Note/NoteList.vue'
 import SideBar from './body/SideBar/SideBar.vue'
