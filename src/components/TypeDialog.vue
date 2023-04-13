@@ -1,3 +1,4 @@
+<!-- 添加笔记类型 -->
 <script setup>
 import {ref,computed,watch} from 'vue'
 import { useStore } from 'vuex';

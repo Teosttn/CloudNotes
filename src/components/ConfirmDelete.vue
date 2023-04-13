@@ -1,3 +1,4 @@
+<!-- 删除笔记 -->
 <script setup>
 import {computed} from 'vue'
 import { useStore } from 'vuex';

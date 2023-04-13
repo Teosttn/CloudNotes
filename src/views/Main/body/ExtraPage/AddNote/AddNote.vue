@@ -115,7 +115,7 @@ function cancelAddNote() {
     bottom: 0px;
     display: flex;
     flex-direction: column;
-    background: url(../../../assets/img/AddNoteBackground.jpg) no-repeat center;
+    background: url(../../../../../assets/img/AddNoteBackground.jpg) no-repeat center;
     background-size: cover;
 }
 #Content{
