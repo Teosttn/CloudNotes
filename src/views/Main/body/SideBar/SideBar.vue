@@ -1,3 +1,4 @@
+<!-- 侧边栏 -->
 <script setup>
 import {LocationInformation, Plus,ArrowDown,Delete} from '@element-plus/icons-vue'
 import { computed } from 'vue';
@@ -7,10 +8,12 @@ const store = useStore()
 
 const NoteTypes = computed(()=>store.state.NoteTypes)    
 
-
+// 添加类别
 function AddType(){
     store.commit('openTypeDialog')
 }
+
+// 删除类别
 function DeleteType (num){
     console.log(num);
     NoteTypes.value.splice(num,1)
@@ -21,6 +24,7 @@ function DeleteType (num){
 
 <template>
     <div id="SideBar">
+        <!-- 侧边栏标题（笔记分类） -->
         <div class="SideBarTitle">
             <el-icon class="SideBarTitleIcon"><LocationInformation/></el-icon>
             <p class="SideBarTitleWord">笔记分类</p>
@@ -29,6 +33,7 @@ function DeleteType (num){
                 <el-icon class="SideBarTitleIcon" ><ArrowDown/></el-icon>
             </div>
         </div>
+        <!-- 侧边栏内容 笔记分类的类别 -->
         <div class="SideBarList">
             <ul >
                 <div class="SideBarListLi">
@@ -50,6 +55,7 @@ function DeleteType (num){
 #SideBar{
     width: 300px;
 }
+/* 侧边栏标题 */
 .SideBarTitle{
     width: 300px;
     height: 60px;
@@ -79,6 +85,7 @@ function DeleteType (num){
 .SideBarTitleTools{
   margin-left: 100px ;
 }
+/* 侧边栏笔记类别具体内容 */
 .SideBarList{
     width: 300px;
     color: #FFF ;

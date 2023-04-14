@@ -3,8 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 const Home =()=> import('../views/Home/Home.vue')
 const Register =()=> import('../views/Home/Register/RegisterPage.vue')
 const Main =()=> import('../views/Main/MainPage.vue')
-const AddNote =()=> import('../views/Main/AddNote/AddNote.vue')
-const EditNote =()=> import('../views/Main/EditNote/EditNote.vue')
+const AddNote =()=> import('../views/Main/body/ExtraPage/AddNote/AddNote.vue')
+const EditNote =()=> import('../views/Main/body/ExtraPage/EditNote/EditNote.vue')
 
 const routes= [
   {

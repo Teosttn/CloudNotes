@@ -23,6 +23,8 @@ watch(()=>startNum,(newValue,oldValue)=>{
 function DeleteNote (num){
     store.commit('openConfirmDelete',startNum.value+num)
 }
+
+// 跳转到“编辑”页面
 function EditNote (num){
     router.push({path:'/Main/EditNote',query:{id:startNum.value+num}})
 }
