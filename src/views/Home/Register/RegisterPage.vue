@@ -1,55 +1,10 @@
 <script setup>
-import { User,Key } from '@element-plus/icons-vue'
-import {ref} from 'vue'
-import { useRouter} from 'vue-router'
-
-const router = useRouter()
-
-const Username=ref('')
-const Password1=ref('')
-const Password2=ref('')
-
-function FinishRegister() {
-  router.push('/')
-}
+import RegisterForm from '../../../components/RegisterForm.vue'
 </script>
 
 <template>
     <div id="Content">
-      <div id="Register">
-        <div class="Title">
-          <h2 class="TitleName">用户注册</h2>
-        </div>
-        <div class="InputBox">
-          <el-input 
-              class="UserInput"
-              v-model="Username" 
-              placeholder="账号" 
-              :prefix-icon="User"
-          />
-          <el-input 
-            class="PasswordInput"
-            v-model="Password1" 
-            type="password" 
-            placeholder="密码" 
-            show-password
-            :prefix-icon="Key"
-          />
-          <el-input 
-            class="PasswordInput"
-            v-model="Password2" 
-            type="password" 
-            placeholder="确认密码" 
-            show-password
-            :prefix-icon="Key"
-          />
-        </div>
-        <div >
-          <el-button type="primary" class="RegisterButton" @click="FinishRegister">
-            注册
-          </el-button>
-        </div>
-      </div>
+      <RegisterForm></RegisterForm>
     </div>
 </template>
 

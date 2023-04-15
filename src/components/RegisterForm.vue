@@ -1,6 +1,5 @@
 <template>
-    <div id="Content">
-      <div id="Register">
+      <div class="register">
         <div class="Title">
           <h2 class="TitleName">用户注册</h2>
         </div>
@@ -15,16 +14,32 @@
           </el-button>
         </div>
       </div>
-    </div>
-  </template>
+</template>
   
   <script setup>
-  import { User, Key, Username, Password1, Password2, finishRegister } from './logon.js'
-  </script>
+import {ref} from 'vue'
+import { useRouter} from 'vue-router'
+import { User,Key } from '@element-plus/icons-vue'
 
+const router = useRouter()
+
+ const Username = ref('')
+ const Password1 = ref('')
+ const Password2 = ref('')
+ 
+ function finishRegister(){
+  if(Password1.value != Password2.value){
+    ElMessage({
+    message: '两次输入的密码不一致',
+    type: 'warning',
+    })
+  }
+  else router.push('/')
+ }
+  </script>
   
-  <style>
-    #Register{
+  <style scoped>
+    .register{
         width: 500px;
         height: 450px;
         margin: auto;
