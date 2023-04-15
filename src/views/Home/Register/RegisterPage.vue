@@ -18,40 +18,4 @@ import RegisterForm from '../../../components/RegisterForm.vue'
   top: 0px;
   left: 0px;
 }
-#Register{
-    width: 500px;
-    height: 450px;
-    margin: auto;
-    margin-top: 150px;
-    padding: 50px;
-    border-radius: 10px;
-    background-color: rgba(255, 251, 251, 0.763);
-    backdrop-filter: blur(20px);
-    box-shadow: 
-    0 0.3px 0.7px rgba(0, 0, 0, 0.180),
-    0 0.9px 1.7px rgba(0, 0, 0, 0.180),
-    0 5.0px 10px rgba(0, 0, 0, 0.225),
-    0 3.7px 7.3px rgba(0, 0, 0, 0.280),
-    0 10px 20px rgba(0, 0, 0, 0.4);
-}
-.UserInput{
-    margin-top: 20px;
-    width: 400px;
-    height:40px;
-}
-.PasswordInput{
-    margin-top: 20px;
-    width: 400px;
-    height:40px;
-}
-.TitleName{
-    text-align: center;
-    color: gray;
-}
-.RegisterButton{
-    margin-top: 50px;
-    width: 400px;
-    height:40px;
-    font-size: large;
-}
 </style>
