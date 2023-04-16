@@ -54,6 +54,7 @@ function DeleteType (num){
 <style scoped>
 #SideBar{
     width: 300px;
+    height: 100%;
 }
 /* 侧边栏标题 */
 .SideBarTitle{

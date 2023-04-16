@@ -163,6 +163,9 @@ const store = createStore({
             }
             // console.log(sum)
             state.chosenNotes=sum;
+        },
+        changeChoice(state,num){
+            state.noteData[num].choice=!state.noteData[num].choice
         }
     }
 });

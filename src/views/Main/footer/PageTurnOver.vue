@@ -26,9 +26,4 @@ watch(() => currentPage.value, (newValue, oldValue) => {
 </script>
 
 <style scoped>
-.pageNoteList{
-  position: fixed;
-  bottom: 30px;
-  right: 230px;
-}
 </style>

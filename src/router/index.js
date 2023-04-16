@@ -5,7 +5,6 @@ const Register =()=> import('../views/Home/Register/RegisterPage.vue')
 const Main =()=> import('../views/Main/MainPage.vue')
 const AddNote =()=> import('../views/Main/body/ExtraPage/AddNote/AddNote.vue')
 const EditNote =()=> import('../views/Main/body/ExtraPage/EditNote/EditNote.vue')
-
 const routes= [
   {
     path:'/',
@@ -31,7 +30,7 @@ const routes= [
     path:'/Main/EditNote',
     name:EditNote,
     component:EditNote,
-  }
+  },
 ]
 
 const router = createRouter({

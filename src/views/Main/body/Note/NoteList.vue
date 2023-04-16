@@ -1,12 +1,13 @@
 <script setup>
-import {watch} from 'vue'
+import {watch,ref} from 'vue'
 import {Edit,Delete} from '@element-plus/icons-vue'
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router'
-
 const router = useRouter()
 const store = useStore()
+
+
 
 const startNum = computed(() => store.state.startNum) 
 const endNum = computed(() => store.state.startNum+7)
@@ -14,6 +15,7 @@ const noteData = computed({
     get: () => store.state.noteData.slice(startNum.value, endNum.value),
     set: (value) => {}
 })
+
 
 watch(()=>startNum,(newValue,oldValue)=>{
     // noteData.value = store.state.noteData.slice(newValue, newValue + 6) 
@@ -28,25 +30,31 @@ function DeleteNote (num){
 function EditNote (num){
     router.push({path:'/Main/EditNote',query:{id:startNum.value+num}})
 }
+
 </script>   
 
 <template>
-    <div class="NoteList">
-            <el-table v-model:data="noteData" style="width: 1100px" class="NoteList">
-                <el-table-column prop="choice"  label="操作" width="180">
+    <div class="Inf">
+            <el-table 
+                v-model:data="noteData"  
+                class="NoteList" 
+                style="width: 100%"
+            >
+                <el-table-column width="100" label="选择" >
                     <template #default="scope">
                         <el-checkbox v-model="scope.row.choice" size="large" class="NoteListItemCheckbox"/>
                     </template>
                 </el-table-column>
-                <el-table-column prop="title" label="标题" width="180" />
-                <el-table-column prop="classify" label="分类" width="180" />
-                <el-table-column prop="createTime" label="创建时间" width="180" />
-                <el-table-column prop="situ" label="状态" width="180">
+                <el-table-column prop="title" label="标题">
+                </el-table-column>
+                <el-table-column prop="classify" label="分类"  />
+                <el-table-column prop="createTime" label="创建时间"  />
+                <el-table-column prop="situ" label="状态"   >
                     <template #default="scope">
-                        <el-switch v-model="scope.row.situ"/>
+                        <el-switch v-model="scope.row.situ" />
                     </template>
                 </el-table-column>
-                <el-table-column prop="" label="操作" width="200">
+                <el-table-column prop="" label="操作" header-align="center">
                     <template #default="scope">
                         <div class="TableTools">
                             <div class="TableSingleEdit" @click="EditNote(scope.$index)">
@@ -69,10 +77,20 @@ function EditNote (num){
 </template>
 
 <style scoped>
+.Inf{
+    width: calc(100% - 50px);
+    /* height: 100vh; */
+}
+.infRow{
+    height: 50px;
+    width: 100%;
+}
 .NoteList{
-    opacity: 0.9;
+    display: flex;
+    justify-self: center;
+    opacity: 0.8;
     border-radius: 6px;
-    /* backdrop-filter: blur(5px); */
+    backdrop-filter: blur(5px);
     box-shadow: 0 0.3px 0.7px rgba(0, 0, 0, 0.180),
     0 0.9px 1.7px rgba(0, 0, 0, 0.180),
     0 1.8px 3.5px rgba(0, 0, 0, 0.225),
