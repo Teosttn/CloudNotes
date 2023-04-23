@@ -35,15 +35,77 @@
 import { User,Key } from '@element-plus/icons-vue'
 import {ref} from 'vue'
 import { useRouter} from 'vue-router'
-
+import axios from 'axios';
+import { useStore } from 'vuex';
+//初始化路由，仓库等
+const store = useStore()
 const router = useRouter()
 
+//定义输入框绑定的数据
 const username=ref('')
 const password=ref('')
 
-function submitAccount() {
-  router.push('/Main')
+
+//判断输入框的内容
+function judgeInput(){
+  var flag = true
+  if(!username.value && !password.value){
+    ElMessage({
+    message: '账号或密码不能为空',
+    type: 'warning',
+    })
+    flag = false
+  }
+  return flag
 }
+
+//提交登录操作
+function submitAccount() {
+  if(judgeInput()){
+    console.log('正在进行登录请求');
+    login();
+  }
+}
+
+//进行axois异步请求
+function login(){
+    axios({
+    method:'post',
+    url:'api/users/login',
+    data:{
+      username:username.value,
+      password:password.value
+    },
+    headers:{
+      'Content-Type':'application/json'
+    }
+    }).then(response=>{
+
+        //登录时获取token
+        const token = response.data.data;
+        store.commit('updateToken',token)
+        console.log('正在打印token');
+        console.log(token);
+
+
+        //登录验证
+        console.log('登录请求成功');
+        console.log(response);
+
+        //跳转到主界面
+        router.push({path:'/Main',query:{user:username.value}})
+      }).catch(error=>{
+
+        //登陆失败提示
+        console.log('登录请求失败');
+        console.error(error);
+        ElMessage({
+          message: '账号或密码错误',
+          type: 'error',
+          })
+      })
+}
+
 </script>
 
 <style  scoped>

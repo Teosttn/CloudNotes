@@ -6,6 +6,12 @@ import SideBar from './body/SideBar/SideBar.vue'
 import TypeDialog from '../../components/TypeDialog.vue'
 import ConfirmDelete from '../../components/ConfirmDelete.vue'
 import PageTurnOver from './footer/PageTurnOver.vue'
+import {useRouter,useRoute} from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+const username = route.query.user
+
 
 </script>
 
@@ -14,26 +20,28 @@ import PageTurnOver from './footer/PageTurnOver.vue'
   <ConfirmDelete></ConfirmDelete>
   <div id="Container">
     <div id="Header">
-      <TheHeading></TheHeading>
+      <TheHeading v-model:usr="username"></TheHeading>
     </div>
 
     <div id="Main">
 
       <div class="Aside">
-        <SideBar></SideBar>
+        <SideBar v-model:usr="username"></SideBar>
       </div>
 
       <div class="Content">
         <!-- 工具箱：对笔记栏进行操作的按钮 -->
         <div class="ToolBox">
-          <TheToolBox></TheToolBox>
+          <TheToolBox 
+            v-model:usr="username"
+          />
         </div>
         <!-- 笔记内容：笔记列表和分页 -->
         <div class="Information">
           <!-- 笔记列表：详细每一条笔记 -->
           <div class="InfTable">
             <div  class="Note">
-            <NoteList ></NoteList>
+            <NoteList v-model:usr="username"></NoteList>
             </div>
           </div>
           <!-- 分页栏：对笔记进行分页 -->

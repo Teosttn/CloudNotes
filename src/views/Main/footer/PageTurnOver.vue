@@ -19,9 +19,7 @@ const store = useStore()
 const currentPage = ref(1)
 
 watch(() => currentPage.value, (newValue, oldValue) => {
-  // console.log(currentPage)
-  store.commit('changeStartNum',newValue)
-  // console.log(store.state.startNum)
+  store.commit('updateCurrentPage',newValue)
 },{immediate:true})
 </script>
 

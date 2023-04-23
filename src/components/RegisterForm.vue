@@ -4,9 +4,9 @@
           <h2 class="TitleName">用户注册</h2>
         </div>
         <div class="InputBox">
-          <el-input class="UserInput" v-model="Username" placeholder="账号" :prefix-icon="User" />
-          <el-input class="PasswordInput" v-model="Password1" type="password" placeholder="密码" show-password :prefix-icon="Key" />
-          <el-input class="PasswordInput" v-model="Password2" type="password" placeholder="确认密码" show-password :prefix-icon="Key" />
+          <el-input class="UserInput" v-model="Username" placeholder="账号"  :prefix-icon="User" />
+          <el-input class="PasswordInput" v-model="Password1" type="password" placeholder="密码" show-password :prefix-icon="Key"  />
+          <el-input class="PasswordInput" v-model="Password2" type="password" placeholder="确认密码" show-password :prefix-icon="Key"  />
         </div>
         <div>
           <el-button type="primary" class="RegisterButton" @click="finishRegister">
@@ -20,23 +20,73 @@
 import {ref} from 'vue'
 import { useRouter} from 'vue-router'
 import { User,Key } from '@element-plus/icons-vue'
+import axios from 'axios'
 
+//初始化路由
 const router = useRouter()
 
+//定义输入框绑定的数据
  const Username = ref('')
  const Password1 = ref('')
  const Password2 = ref('')
- 
- function finishRegister(){
+
+//判断输入框的内容
+function judgeInput(){
+  var flag = true
   if(Password1.value != Password2.value){
     ElMessage({
     message: '两次输入的密码不一致',
     type: 'warning',
     })
+    flag = false
   }
-  else router.push('/')
+  if(!Username.value && !Password1.value && !Password2.value){
+    ElMessage({
+    message: '账号或密码不能为空',
+    type: 'warning',
+    })
+    flag = false
+  }
+  
+  return flag
+}
+
+//提交注册操作  
+ function finishRegister(){
+  if(judgeInput()){
+    register()
+
+    //注册完成进行路由跳转到登录界面
+    router.push('/')
+  }
  }
-  </script>
+
+
+// 进行axios请求
+function register(){
+    axios({
+    method:'post',
+    url:'api/users/register',
+    data:{
+      username:Username.value,
+      password:Password1.value
+    },
+    headers:{
+      'Content-Type':'application/json'
+    }
+    }).then(response=>{
+        console.log(response);
+        ElMessage({
+            message: '注册成功',
+            type: 'success',
+            })
+      }).catch(error=>{
+        console.error(error);
+      })
+}
+
+
+</script>
   
   <style scoped>
     .register{
