@@ -1,36 +1,63 @@
 <script setup>
 import {watch,ref} from 'vue'
 import {Edit,Delete} from '@element-plus/icons-vue'
-import { computed } from 'vue';
+import { computed,onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router'
+import { defineProps } from 'vue';
+import axios from 'axios';
+const prop = defineProps(['usr'])
 const router = useRouter()
 const store = useStore()
 
+//通过localStorage获取token
+const token = localStorage.getItem('token');
+
+//从store里面获取分页信息
+const currentPage = computed(()=>store.state.currentPage)
+
+//axios获取后台note数据
+const noteData = ref([])
+function getNoteContent(){
+    axios({
+    method:'get',
+    url:`api/notebooks/page/${currentPage.value}/7` ,
+    headers:{
+        'Authorization': `${token}`
+    }
+    }).then(response=>{
+        console.log('获取表格数据成功');
+        noteData.value=response.data.data.records
+        console.log(noteData.value);
+        return response;
+      }).catch(error=>{
+        console.error(error);
+      })
+}
 
 
-const startNum = computed(() => store.state.startNum) 
-const endNum = computed(() => store.state.startNum+7)
-const noteData = computed({ 
-    get: () => store.state.noteData.slice(startNum.value, endNum.value),
-    set: (value) => {}
+
+//删除笔记，同时删除后台笔记数据
+function deleteSingleNote(index){
+    store.commit('openConfirmDelete',noteData.value[index].notebookTitle)
+}
+
+//编辑笔记
+function editSingleNote(index){
+    router.push({path:'/editNote',query:{user:username.value}})
+}
+
+
+
+onMounted(() => {
+    console.log('获取表格数据中')
+    getNoteContent()
 })
 
-
-watch(()=>startNum,(newValue,oldValue)=>{
-    // noteData.value = store.state.noteData.slice(newValue, newValue + 6) 
+watch(currentPage,(newValue,oldValue)=>{
     console.log(newValue);
-},{deep:true,immediate:true})
-
-function DeleteNote (num){
-    store.commit('openConfirmDelete',startNum.value+num)
-}
-
-// 跳转到“编辑”页面
-function EditNote (num){
-    router.push({path:'/Main/EditNote',query:{id:startNum.value+num}})
-}
-
+    getNoteContent()
+})
 </script>   
 
 <template>
@@ -39,16 +66,14 @@ function EditNote (num){
                 v-model:data="noteData"  
                 class="NoteList" 
                 style="width: 100%"
+                
             >
-                <el-table-column width="100" label="选择" >
-                    <template #default="scope">
-                        <el-checkbox v-model="scope.row.choice" size="large" class="NoteListItemCheckbox"/>
-                    </template>
+                <el-table-column  label="选择"  type="selection" width="100" >
                 </el-table-column>
-                <el-table-column prop="title" label="标题">
+                <el-table-column prop="notebookTitle" label="标题">
                 </el-table-column>
-                <el-table-column prop="classify" label="分类"  />
-                <el-table-column prop="createTime" label="创建时间"  />
+                <el-table-column prop="notebookType" label="分类"  />
+                <el-table-column prop="notebookCreatedTime" label="创建时间"  />
                 <el-table-column prop="situ" label="状态"   >
                     <template #default="scope">
                         <el-switch v-model="scope.row.situ" />
@@ -57,13 +82,13 @@ function EditNote (num){
                 <el-table-column prop="" label="操作" header-align="center">
                     <template #default="scope">
                         <div class="TableTools">
-                            <div class="TableSingleEdit" @click="EditNote(scope.$index)">
+                            <div class="TableSingleEdit" @click="editSingleNote(scope.$index)">
                                 <div>
                                     <el-icon><Edit/></el-icon>
                                     编辑
                                 </div>
                             </div>
-                            <div class="TableSingleDelete" @click="DeleteNote(scope.$index)">
+                            <div class="TableSingleDelete" @click="deleteSingleNote(scope.$index)">
                                 <div>
                                     <el-icon><Delete/></el-icon>
                                     删除

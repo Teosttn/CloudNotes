@@ -1,25 +1,76 @@
 <!-- 侧边栏 -->
 <script setup>
 import {LocationInformation, Plus,ArrowDown,Delete} from '@element-plus/icons-vue'
-import { computed } from 'vue';
+import {onUpdated,ref,defineProps, onMounted,watch} from 'vue';
 import { useStore } from 'vuex';
+import axios from 'axios';
+import router from '../../../../router';
+
+const prop=defineProps(['usr'])
 
 const store = useStore()   
+const NoteTypes = ref([])
 
-const NoteTypes = computed(()=>store.state.NoteTypes)    
+//通过localStorage获取token
+const token = localStorage.getItem('token');
 
-// 添加类别
-function AddType(){
+//向后台获取笔记分类
+function getNoteTypes(){
+    axios({
+    method:'get',
+    url:'api/notebooks/showType',
+    headers:{
+        'Authorization': ` ${token}`
+    }
+    }).then(response=>{
+        console.log('获取笔记分类成功');
+        NoteTypes.value=Object.values(response.data.data)
+        //同步给vuex
+        store.commit('updateNoteTypes',NoteTypes.value) 
+      }).catch(error=>{
+        console.error(error);
+      })
+}
+
+//监听笔记分类的数据，当其发生变化的时候，重新渲染界面以实现响应式更新
+onUpdated(()=>{
+    //  getNoteTypes()
+})
+
+//挂载的时候就获取笔记分类
+onMounted(()=>{
+    getNoteTypes()
+    console.log('获取笔记分类中');
+    
+})
+
+// 添加笔记分类
+function addNoteType(){
     store.commit('openTypeDialog')
+    //重新获取axios
 }
 
-// 删除类别
-function DeleteType (num){
-    console.log(num);
-    NoteTypes.value.splice(num,1)
+//删除笔记分类
+function deleteNoteType(index){
+    axios({
+    method:'delete',
+    url:'api/notebooks/deleteType',
+    headers:{
+        'Content-Type':'application/x-www-form-urlencoded',
+        'Authorization':`${token}`
+    },
+    params:{
+        notebookType:NoteTypes.value[index],    
+    }
+    }).then(response=>{
+        console.log('删除笔记分类成功');
+        //同步给vuex
+        // store.commit('updateNoteTypes',NoteTypes.value) 
+      }).catch(error=>{
+        console.error(error);
+      })
+      router.go(0)
 }
-
-
 </script>   
 
 <template>
@@ -29,7 +80,7 @@ function DeleteType (num){
             <el-icon class="SideBarTitleIcon"><LocationInformation/></el-icon>
             <p class="SideBarTitleWord">笔记分类</p>
             <div class="SideBarTitleTools">
-                <el-icon class="SideBarTitleIcon" @click="AddType"><Plus/></el-icon>
+                <el-icon class="SideBarTitleIcon" @click="addNoteType"><Plus/></el-icon>
                 <el-icon class="SideBarTitleIcon" ><ArrowDown/></el-icon>
             </div>
         </div>
@@ -37,12 +88,10 @@ function DeleteType (num){
         <div class="SideBarList">
             <ul >
                 <div class="SideBarListLi">
-                    <li v-for="(item,index) in NoteTypes">
-                        <div class="SideBarListItem">
-                            {{ item.name }}
-                        </div>
+                    <li v-for=" (value,index) in NoteTypes" :key="index">
+                        <div class="SideBarListItem">{{value}}</div>
                         <div class="SideBarListIcon">
-                            <el-icon  @click="DeleteType(index)"><Delete/></el-icon>
+                            <el-icon  @click="deleteNoteType(index)"><Delete/></el-icon>
                         </div>
                     </li>
                 </div>
@@ -71,14 +120,13 @@ function DeleteType (num){
 .SideBarTitleIcon{
     margin-left: 10px;
     margin-top: 5px;
+    transition: all 0.3s ease-in-out;
 }
 .SideBarTitleIcon :hover{
     color: rgb(219,112,147);
-    /* box-shadow: 0 0.3px 0.7px rgba(0, 0, 0, 0.180),
-    0 0.9px 1.7px rgba(0, 0, 0, 0.180),
-    0 1.8px 3.5px rgba(0, 0, 0, 0.225),
-    0 3.7px 7.3px rgba(0, 0, 0, 0.280),
-    0 10px 20px rgba(0, 0, 0, 0.4); */
+    cursor: pointer;
+    transform: scale(1.3);
+    transform: translateY(-2px);
 }
 .SideBarTitleWord{
     margin-left: 10px;
@@ -114,8 +162,10 @@ function DeleteType (num){
     height: 30px;
     margin-top: 10px;
     border-left: solid 7px pink;
+    transition: all 0.3s ease-in-out;
 }
 .SideBarList ul li:hover{
+    transform: scale(1.1);
     border-left: solid 7px #FFF;
     background-color: rgba(255,192,203,0.6);
     color: #FFF;
@@ -124,5 +174,11 @@ function DeleteType (num){
     float: right;
     margin-top: 5px;
     margin-right: 30px;
+    transition: all 0.5s ease-in-out;
 }
+.SideBarListIcon :hover{
+    transform: translateY(-1px);
+    cursor: pointer;
+}
+
 </style>

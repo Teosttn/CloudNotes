@@ -2,20 +2,52 @@
 <script setup>
 import {computed} from 'vue'
 import { useStore } from 'vuex';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+
+//通过localStorage获取token
+const token = localStorage.getItem('token');
+
+const router = useRouter()
 
 const store = useStore()
+//从store获取与确认删除对话框绑定的值
 const confirmVisible = computed({
     get:() => store.state.confirmDeleteVisible,
-    set:(newValue) => {
-        console.log(newValue);
-    }
+    set:(newValue) => { }
 })
 
+
+//关闭对话框，取消删除
 function cancelDelete(){
     store.commit('closeConfirmDelete')
 }
+
+//确认删除且关闭对话框
 function deleteNote(){
-    store.commit('deleteNote',store.state.deleteNoteOrder)
+    
+    //向后端发送删除请求
+    axios({
+    method:'delete',
+    url:'api/notebooks/delete',
+    params:{
+        notebookTitle:store.state.noteToDelete
+    },
+    headers:{
+        'Authorization':`${token}`
+    }
+    }).then(response=>{
+        console.log(response);
+        console.log('删除笔记成功');
+        return response;
+      }).catch(error=>{
+        console.error(error);
+      })
+
+    router.go(0)
+
+    //关闭对话框
     store.commit('closeConfirmDelete')
     ElMessage({
     message: '删除成功',

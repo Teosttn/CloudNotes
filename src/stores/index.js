@@ -1,175 +1,58 @@
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
+import axios from 'axios'
 
 const store = createStore({
     state(){
         return{
-            testNum:5,
-            noteData:[
-                {
-                    choice:false,
-                    title:'Java',
-                    classify:'School',
-                    createTime:'2022/05/29',
-                    situ:true,
-                    description:'这是一个Java笔记',
-                    content:'这是Java笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'C++',
-                    classify:'Home',
-                    createTime:'2022/08/02',
-                    situ:false,
-                    description:'这是一个C++笔记',
-                    content:'这是C++笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'Python',
-                    classify:'School',
-                    createTime:'2023/02/17',
-                    situ:false,
-                    description:'这是一个Python笔记',
-                    content:'这是Python笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'HTML',
-                    classify:'Website',
-                    createTime:'2022/02/03',
-                    situ:true,
-                    description:'这是一个HTML笔记',
-                    content:'这是HTML笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'Vue',
-                    classify:'Website',
-                    createTime:'2022/08/30',
-                    situ:false,
-                    description:'这是一个Vue笔记',
-                    content:'这是Vue笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'Git',
-                    classify:'School',
-                    createTime:'2022/08/30',
-                    situ:true,
-                    description:'这是一个Git笔记',
-                    content:'这是Git笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'QQ',
-                    classify:'School',
-                    createTime:'2022/08/30',
-                    situ:true,
-                    description:'这是一个Git笔记',
-                    content:'这是Git笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'Egg',
-                    classify:'School',
-                    createTime:'2022/08/30',
-                    situ:true,
-                    description:'这是一个Git笔记',
-                    content:'这是Git笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'King',
-                    classify:'School',
-                    createTime:'2022/08/30',
-                    situ:true,
-                    description:'这是一个Git笔记',
-                    content:'这是Git笔记的内容',
-                },
-                {
-                    choice:false,
-                    title:'Genshin',
-                    classify:'School',
-                    createTime:'2022/08/30',
-                    situ:true,
-                    description:'这是一个Git笔记',
-                    content:'这是Git笔记的内容',
-                },
-            ],
-            noteDataShow:[],
-            startNum:0,
-            NoteTypes:[
-                {name:'School'},
-                {name:'WebSite'},
-                {name:'Home'}
-            ],
+            //笔记分类
+            noteTypes:[],
+            //控制添加笔记类型的对话框
             typeDialogVisible:false,
+            //控制确认删除笔记的对话框
             confirmDeleteVisible:false,
-            deleteNoteOrder:-1,    
-            chosenNotes:0,
-            chosenNoteOrder:0
+            noteToDelete:'',
+            //后端传过来的token令牌
+            token:'',   
+            //当前的笔记页数
+            currentPage:1,
         }
     },
     mutations:{
-        increase(state,payload){
-            state.testNum+=payload
-            console.log(state.testNum);
+
+        //更新token
+        updateToken(state,token){
+            state.token=token
         },
-        addNote(state,payload){
-            state.noteData.push(payload)
-        },
-        deleteNote(state,payload){
-            state.noteData.splice(payload,1)
-        },
+
+        //开闭添加笔记类型的对话框
         openTypeDialog(state){
             state.typeDialogVisible=true
         },
         closeTypeDialog(state){
             state.typeDialogVisible=false
         },
+
+         //开闭确认删除的对话框
         openConfirmDelete(state,payload){
             state.confirmDeleteVisible=true
-            state.deleteNoteOrder=payload
+            state.noteToDelete=payload
         },
         closeConfirmDelete(state){
             state.confirmDeleteVisible=false
         },
-        changeStartNum(state,payload){
-            state.startNum=(payload-1)*7
+
+        //更新笔记类型
+        updateNoteTypes(state,noteTypes){
+            state.noteTypes = noteTypes
         },
-        deleteChosenNotes(state){
-            var sum=0;
-            for(var i=state.noteData.length-1; i>=0; i--){
-                if(state.noteData[i].choice==true){
-                    state.noteData.splice(i,1);
-                    sum++;
-                    // console.log("delete success");
-                }                
-            }
-            // console.log(sum)
-            state.chosenNotes=sum;
-        },
-        resetChosenNotes(state){
-            state.chosenNotes=0
-        },
-        editChosenNotes(state){
-            var sum=0;
-            for(var i=state.noteData.length-1; i>=0; i--){
-                if(state.noteData[i].choice==true){
-                    state.chosenNoteOrder=i;
-                    sum++;
-                }                
-            }
-            // console.log(sum)
-            state.chosenNotes=sum;
-        },
-        changeChoice(state,num){
-            state.noteData[num].choice=!state.noteData[num].choice
+        
+        //更新当前分页
+        updateCurrentPage(state,currentPage){
+            state.currentPage=currentPage
         }
     }
 });
 
 
-// createApp(App).use(store).mount('#app');
 export default store

@@ -12,22 +12,22 @@ const routes= [
     component:Home
   },
   {
-    path:'/Register',
+    path:'/register',
     name:Register,
     component:Register
   },
   {
-    path:'/Main',
+    path:'/main',
     name:Main,
     component:Main
   },
   {
-    path:'/Main/AddNote',
+    path:'/addNote',
     name:AddNote,
     component:AddNote,
   },
   {
-    path:'/Main/EditNote',
+    path:'/editNote',
     name:EditNote,
     component:EditNote,
   },

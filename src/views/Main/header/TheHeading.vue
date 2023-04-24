@@ -1,5 +1,31 @@
 <script setup>
 import {MostlyCloudy,User,ArrowDown} from '@element-plus/icons-vue'
+import { useRouter} from 'vue-router'
+import axios from 'axios';
+
+import { defineProps } from 'vue';
+
+const prop = defineProps(['usr'])
+const router = useRouter()
+//登出账号
+function loginOut(){
+    axios({
+    method:'post',
+    url:'api/users/logout',
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded'
+    }
+    }).then(response=>{
+        console.log(response);
+      }).catch(error=>{
+        console.error(error);
+      })
+}
+
+function handleLogOut(){
+  loginOut()
+  router.push('/')
+}
 </script>
 
 <!-- 头部栏 -->
@@ -20,7 +46,7 @@ import {MostlyCloudy,User,ArrowDown} from '@element-plus/icons-vue'
           <el-icon :size="25"><ArrowDown /></el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>退出登录</el-dropdown-item>
+                <el-dropdown-item @click="handleLogOut">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
         </el-dropdown> 

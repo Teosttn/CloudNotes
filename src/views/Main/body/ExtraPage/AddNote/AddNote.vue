@@ -1,13 +1,22 @@
 <script setup>
-import {ref} from 'vue'
-import { useRouter } from 'vue-router'
+import {ref , onMounted} from 'vue'
+import { useRouter,useRoute } from 'vue-router'
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import axios from 'axios';
+import { defineProps } from 'vue';
+import { getBaseTransformPreset } from '@vue/compiler-core';
 
+
+//通过localStorage获取token
+const token = localStorage.getItem('token');
+
+//初始化仓库
 const store=useStore()
 const router = useRouter()
 
-const NoteTypes = computed (()=>store.state.NoteTypes)
+//使用computed响应式获取store中的数据，保证页面重新加载之后能避免被初始化为空数组
+const noteTypes = computed(() => store.state.noteTypes)
 
 const Note = ref({
     choice:false,
@@ -19,21 +28,48 @@ const Note = ref({
     content:'',
 })
 
-function finishAddNote() {
-    if(Note.value.situ == '1') Note.value.situ=true
-    else Note.value.situ=false
-    // console.log(Note.value.situ)
-    store.commit('addNote',Note.value)
-    router.push('/Main')
-    ElMessage({
-    message: '新增笔记成功',
-    type: 'success',
-    })
-}
+// function finishAddNote() {
+//     if(Note.value.situ == '1') Note.value.situ=true
+//     else Note.value.situ=false
+//     // console.log(Note.value.situ)
+//     store.commit('addNote',Note.value)
+//     router.push('/Main')
+//     ElMessage({
+//     message: '新增笔记成功',
+//     type: 'success',
+//     })
+// }
 function cancelAddNote() {
-    router.push('/Main')
+    router.go(-1)
+}
+function finishAddNote() {
+    axios({
+    method:'post',
+    url:'api/notebooks/saveNotebook',
+    headers:{
+        'Content-Type':'application/json',
+        'Authorization': ` ${token}`
+    },
+    data:{
+        notebookType:Note.value.classify,
+        notebookTitle:Note.value.title,
+        notebookState:1,
+        notebookContent:Note.value.content,
+        notebookDescription:Note.value.description,
+    }
+    }).then(response=>{
+        console.log(response)
+      }).catch(error=>{
+        console.error(error);
+      })
+    router.go(-1)
 }
 
+onMounted(()=>{
+    const noteTypes = computed(() => store.state.noteTypes)
+    console.log(noteTypes.value);
+    // console.log(token);
+})
 </script>   
 
 <template>
@@ -57,9 +93,8 @@ function cancelAddNote() {
                             </template>
                             <el-select v-model="Note.classify" class="classifyInput" placeholder="请选择" size="large" >
                                 <el-option 
-                                    v-for="item in NoteTypes"
-                                    :key="item.name"
-                                    :value="item.name"
+                                v-for="item in noteTypes"
+                                :value="item"
                                 />
                             </el-select>
                         </el-form-item>
