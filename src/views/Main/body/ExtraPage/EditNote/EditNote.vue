@@ -4,6 +4,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { computed,onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 
+//通过localStorage获取token
+const token = localStorage.getItem('token');
+
 const store=useStore()
 const router = useRouter()
 const route = useRoute()
@@ -55,9 +58,8 @@ function cancelEditNote() {
                             </template>
                             <el-select v-model="Note.classify" class="classifyInput" placeholder="请选择" size="large" >
                                 <el-option 
-                                    v-for="item in NoteTypes"
-                                    :key="item.name"
-                                    :value="item.name"
+                                    v-for="(value ,index) in NoteTypes"
+                                    :value="value"
                                 />
                             </el-select>
                         </el-form-item>

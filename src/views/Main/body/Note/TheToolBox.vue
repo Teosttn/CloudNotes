@@ -13,11 +13,14 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { computed } from 'vue';
 import {Plus,Edit,Delete,Download} from '@element-plus/icons-vue'
+import { defineProps } from 'vue';
+
+const prop=defineProps(['usr'])
 const router = useRouter()
 const store = useStore()
 // 点击新增按钮
 function addNote() {
-  router.push('/Main/AddNote')
+  router.push({path:'/addNote',query:{user:prop.usr}})
 }
 // 点击删除按钮
 function deleteNotes(){

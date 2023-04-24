@@ -6,6 +6,12 @@ import SideBar from './body/SideBar/SideBar.vue'
 import TypeDialog from '../../components/TypeDialog.vue'
 import ConfirmDelete from '../../components/ConfirmDelete.vue'
 import PageTurnOver from './footer/PageTurnOver.vue'
+import {useRouter,useRoute} from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+const username = route.query.user
+
 
 </script>
 
@@ -14,31 +20,37 @@ import PageTurnOver from './footer/PageTurnOver.vue'
   <ConfirmDelete></ConfirmDelete>
   <div id="Container">
     <div id="Header">
-      <TheHeading></TheHeading>
+      <TheHeading v-model:usr="username"></TheHeading>
     </div>
 
     <div id="Main">
+
       <div class="Aside">
-        <!-- v-on监听SideBar组件里面的add-new-type事件，并触发addType事件 -->
-        <SideBar></SideBar>
+        <SideBar v-model:usr="username"></SideBar>
       </div>
 
       <div class="Content">
         <!-- 工具箱：对笔记栏进行操作的按钮 -->
         <div class="ToolBox">
-          <TheToolBox></TheToolBox>
+          <TheToolBox 
+            v-model:usr="username"
+          />
         </div>
-        <!-- 具体的每一则笔记 -->
+        <!-- 笔记内容：笔记列表和分页 -->
         <div class="Information">
+          <!-- 笔记列表：详细每一条笔记 -->
           <div class="InfTable">
-            <NoteList></NoteList>
+            <div  class="Note">
+            <NoteList v-model:usr="username"></NoteList>
+            </div>
+          </div>
+          <!-- 分页栏：对笔记进行分页 -->
+          <div class="footer">
+            <PageTurnOver></PageTurnOver>
           </div>
         </div>
+        
       </div>
-    </div>
-
-    <div id="footer">
-      <PageTurnOver></PageTurnOver>
     </div>
   </div>
 
@@ -46,7 +58,7 @@ import PageTurnOver from './footer/PageTurnOver.vue'
 
 <style scoped>
 #Container{
-  overflow: auto;
+  overflow:auto;
   background: url("../../assets/img/NoteList3.jpg") no-repeat center;
   background-size: cover;
   background-position: center -50px;
@@ -59,9 +71,10 @@ import PageTurnOver from './footer/PageTurnOver.vue'
   flex-direction: column;
 }
 #Header{
+  width: 100%;
   height: 60px;
-  background-color: rgba(255,192,203,0.8);
   backdrop-filter: blur(25px);
+  background-color: rgba(255,192,203,0.8);
   /* opacity: 0.9; */
   box-shadow: 
     0 0.3px 0.7px rgba(0, 0, 0, 0.180),
@@ -72,6 +85,7 @@ import PageTurnOver from './footer/PageTurnOver.vue'
   
 }
 #Main{
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: row;
@@ -92,12 +106,20 @@ import PageTurnOver from './footer/PageTurnOver.vue'
     0 10px 20px rgba(0, 0, 0, 0.4);
 }
 .Content{
+  /* background-color: red; */
+  width: 100%;
   height: 100%;
   padding: 40px;
 }
 
 
 .Information{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center;
+  align-content: center; */
+  height: 90%;
   /* background-color: ; */
   margin-top: 20px;
   /* height: 100%; */
@@ -105,6 +127,16 @@ import PageTurnOver from './footer/PageTurnOver.vue'
 }
 
 .InfTable{
+
+  width: 100%;
+  flex:15;
+
+}
+.footer{
+  flex: 1;
+}
+.Note{
+  width: 100%;
   backdrop-filter: blur(5px);
 }
 </style>

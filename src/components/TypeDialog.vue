@@ -2,21 +2,29 @@
 <script setup>
 import {ref,computed,watch} from 'vue'
 import { useStore } from 'vuex';
+import axios from 'axios';
+import router from '../router';
+
+
+//通过localStorage获取token
+const token = localStorage.getItem('token');
 
 const store = useStore()
 const NewType=ref({
     name:''
 })
-
+//控制添加笔记分类的窗口所绑定的值
 const dialogVisible=computed({
     get:() => store.state.typeDialogVisible,
     set:(newValue) => {
-        console.log(newValue);
+        // console.log(newValue);
     }
 })
+
+//添加新的笔记分类
 function pushType(){
-    const TempType=Object.assign({},NewType.value)
-    store.state.NoteTypes.push(TempType)
+    const TempType=Object.assign({},NewType.value) 
+    addNoteType(TempType.name)
     NewType.value.name=''
     store.commit('closeTypeDialog')
     ElMessage({
@@ -24,8 +32,29 @@ function pushType(){
     type: 'success',
     })
 }
+
+//更新store里面控制对话框的值为false
 function cancelType(){
     store.commit('closeTypeDialog')
+}
+//更新store里面控制对话框的值
+function addNoteType(notebooksType){
+    axios({
+    method:'post',
+    url:'api/notebooks/saveType/',
+    params:{
+        notebookType:notebooksType,
+    },
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded',
+      'Authorization':`${token}`
+    }
+    }).then(response=>{
+        console.log('新建笔记分类成功');
+      }).catch(error=>{
+        console.error(error);
+      })
+    router.go(0)
 }
 </script>
 
