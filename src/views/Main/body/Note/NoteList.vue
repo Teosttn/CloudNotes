@@ -5,13 +5,12 @@ import { computed,onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router'
 import { defineProps } from 'vue';
-import axios from 'axios';
+import axios, { Axios } from 'axios';
 
-
+//初始化
 const prop = defineProps(['usr'])
 const router = useRouter()
 const store = useStore()
-
 
 //通过localStorage获取token
 const token = localStorage.getItem('token');
@@ -39,7 +38,26 @@ function getNoteContent(){
     })
 }
 
-//状态问题
+//处理更改状态的问题
+function handleStateChange(title,state){
+    console.log(title,state);
+    axios({
+        method:'put',
+        url:`api/notebooks/modifyState`,
+        params:{
+            notebookTitle:title,
+            state:parseInt(state)
+        },
+        headers:{
+          'Authorization': `${token}`,
+          'Content-Type':'application/x-www-form-urlencoded'
+        }
+    }).then(response=>{
+        console.log('更改状态成功');
+    }).catch(error=>{
+        console.error(error);
+    })
+}
 
 
 //删除笔记，同时删除后台笔记数据
@@ -66,7 +84,10 @@ watch(currentPage,(newValue,oldValue)=>{
     getNoteContent()
 })
 
-
+//批量操作笔记，处理多选问题
+function handleSelectionChange(val){
+    store.commit('updateChosenNotes',val)
+}
 </script>   
 
 <template>
@@ -75,7 +96,7 @@ watch(currentPage,(newValue,oldValue)=>{
                 v-model:data="noteData"  
                 class="NoteList" 
                 style="width: 100%"
-                
+                @selection-change="handleSelectionChange"
             >
                 <el-table-column  label="选择"  type="selection" width="100" >
                 </el-table-column>
@@ -87,6 +108,7 @@ watch(currentPage,(newValue,oldValue)=>{
                     <template #default="scope">
                         <el-switch 
                             v-model="scope.row.notebookState"
+                            @change="handleStateChange(scope.row.notebookTitle,scope.row.notebookState)"
                             active-value='1'
                             inactive-value='0'
                         />
@@ -99,7 +121,7 @@ watch(currentPage,(newValue,oldValue)=>{
                                 <div>
                                     <el-icon><Edit/></el-icon>
                                     编辑
-                                </div>
+                                </div>  
                             </div>
                             <div class="TableSingleDelete" @click="deleteSingleNote(scope.$index)">
                                 <div>

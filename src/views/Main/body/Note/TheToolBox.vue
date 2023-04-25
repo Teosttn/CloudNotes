@@ -11,64 +11,124 @@
 <script setup>
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { computed } from 'vue';
+import { computed ,ref,onMounted} from 'vue';
 import {Plus,Edit,Delete,Download} from '@element-plus/icons-vue'
 import { defineProps } from 'vue';
+import axios from 'axios';
 
-const prop=defineProps(['usr'])
+
+//通过localStorage获取token
+const token = localStorage.getItem('token');
+
+//初始化
+const prop = defineProps(['usr'])
 const router = useRouter()
 const store = useStore()
-// 点击新增按钮
+
+//从store里获取数据
+const chosenNotes = computed(()=>store.state.chosenNotes)
+const currentPage = computed(()=>store.state.currentPage)
+
+
+// 点击新增按钮，实现笔记的新增
 function addNote() {
   router.push({path:'/addNote',query:{user:prop.usr}})
 }
-// 点击删除按钮
-function deleteNotes(){
-  store.commit('deleteChosenNotes')
-  var sum=computed(()=>store.state.chosenNotes)
-  if(sum.value==0){
+
+// 对操作进行提示
+function deleteAttention(num){
+  if(num){
     ElMessage({
-      message: '请选中要删除的笔记！',
-      type: 'warning',
+    message: '批量删除笔记成功',
+    type: 'success',
     })
   }
   else{
     ElMessage({
-      message: '批量删除笔记成功！',
-      type: 'success',
+    message: '请选中笔记',
+    type: 'warning',
     })
   }
-  store.commit('resetChosenNotes')
 }
-// 点击导出按钮
+
+function editAttention(num){
+  if(num == -1){
+    ElMessage({
+    message: '编辑笔记成功',
+    type: 'success',
+    })
+  }
+  else if(num > 1){
+    ElMessage({
+    message: '仅支持修改单个笔记',
+    })
+  }
+  else if(num <1){
+    ElMessage({
+    message: '请选中要修改的笔记',
+    type:'warning'
+    })
+  }
+}
+
+// 点击删除按钮，实现笔记批量删除
+function deleteNotes(){
+    console.log('准备删除笔记');
+    deleteAttention(chosenNotes.value.length)
+    chosenNotes.value.forEach(element => {
+      axios({
+        method:'delete',
+        url:`api/notebooks/deleteAll`,
+        params:{
+          notebookTitle:element.notebookTitle
+        },
+        headers:{
+          'Authorization': `${token}`,
+          'Content-Type':'application/x-www-form-urlencoded'
+        }
+      }).then(response=>{
+        console.log('删除笔记成功');
+        updateNoteContent()
+      }).catch(error=>{
+        console.error(error);
+      })
+    });
+}
+
+// 点击导出按钮，将笔记表格导出成excel表 ,暂未实现
 function outPutNotes(){
   ElMessage({
     message: '暂无此功能',
     type: 'error',
   })
 }
-// 点击修改按钮
+
+
+// 点击修改按钮，只能实现单个笔记的修改
 function editNote(){
-  store.commit('editChosenNotes')
-  var sum=computed(()=>store.state.chosenNotes)
-  console.log(sum.value);
-  if(sum.value==0){
-    ElMessage({
-      message: '请选中要修改的笔记！',
-      type: 'warning',
+  editAttention(chosenNotes.value.length)
+  if(chosenNotes.value.length == 1){
+    store.commit('updateNoteToEdit',chosenNotes.value[0].notebookTitle)
+    router.push({path:'/editNote',query:{user:prop.usr}})
+  }
+}
+
+
+//进行操作之后重新进行数据请求
+function updateNoteContent(){
+    axios({
+      method:'get',
+      url:`api/notebooks/page/${currentPage.value}/7` ,
+      headers:{
+          'Authorization': `${token}`
+      }
+    }).then(response=>{
+    console.log('获取表格数据成功');
+    //noteData.value=response.data.data.records
+    store.commit('updateNoteData',response.data.data.records)
+    }).catch (error=>{
+    console.error(error);
     })
-  }
-  else if(sum.value==1){
-    var editId = computed(()=>store.state.chosenNoteOrder)
-    router.push({ path: '/editNote', query: { id:editId.value} })
-  }
-  else {
-    ElMessage({
-      message: '仅支持修改单个笔记！',
-      type: 'error',
-    })
-  }
-  store.commit('resetChosenNotes')
 }
 </script>
 

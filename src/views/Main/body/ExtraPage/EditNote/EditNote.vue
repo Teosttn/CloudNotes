@@ -43,7 +43,7 @@ axios({
         //获取数据
         note.value.title=response.data.data.notebookTitle
         note.value.classify=response.data.data.notebookType
-        note.value.situ=response.data.data.notebookState
+        note.value.situ=response.data.data.notebookState.toString()
         note.value.description=response.data.data.notebookDescription
         note.value.content=response.data.data.notebookContent
 
@@ -70,12 +70,16 @@ function finishEditNote(){
     data:{
         notebookTitle:note.value.title,
         notebookType:note.value.classify,
-        notebookState:note.value.situ,
+        notebookState:parseInt(note.value.situ),
         notebookDescription:note.value.description,
         notebookContent:note.value.content
     }
     }).then(response=>{
         updateNoteContent()
+        ElMessage({
+            message:'修改笔记成功',
+            type:'success'
+        })
         //修改成功
       }).catch(error=>{
         console.error(error);
@@ -138,7 +142,7 @@ function updateNoteContent(){
                             </template>
                             <el-radio-group v-model="note.situ" class="situInput">
                                 <el-radio label="1" size="large" >显示</el-radio>
-                                <el-radio label="2" size="large" >隐藏</el-radio>
+                                <el-radio label="0" size="large" >隐藏</el-radio>
                             </el-radio-group>
                         </el-form-item>
                     </el-form>

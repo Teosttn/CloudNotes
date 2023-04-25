@@ -60,6 +60,10 @@ function deleteNoteType(index){
     }).then(response=>{
         console.log('删除笔记分类成功');
         //重新调用获取函数，更新store里面的数据
+        ElMessage({
+            message:'删除笔记分类成功',
+            type:'success'
+        })
         getNoteTypes()
       }).catch(error=>{
         console.error(error);
@@ -158,7 +162,7 @@ function deleteNoteType(index){
     height: 30px;
     margin-top: 10px;
     border-left: solid 7px pink;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }
 .SideBarList ul li:hover{
     transform: scale(1.1);
@@ -170,7 +174,7 @@ function deleteNoteType(index){
     float: right;
     margin-top: 5px;
     margin-right: 30px;
-    transition: all 0.5s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }
 .SideBarListIcon :hover{
     transform: translateY(-1px);

@@ -5,19 +5,28 @@ const store = createStore({
         return{
             //当前页的笔记内容
             noteData:[],
+
             //笔记分类
             noteTypes:[],
+
             //控制添加笔记类型的对话框
             typeDialogVisible:false,
+
             //控制确认删除笔记的对话框
             confirmDeleteVisible:false,
             noteToDelete:'',
+
             //后端传过来的token令牌
             token:'',   
+            
             //当前的笔记页数
             currentPage:1,
+
             //控制要编辑的笔记
-            noteToEdit:''
+            noteToEdit:'',
+    
+            //控制批量管理笔记
+            chosenNotes:[]
         }
     },
     mutations:{
@@ -51,10 +60,14 @@ const store = createStore({
 
         //更新笔记内容
         updateNoteData(state,noteData){
-            //将notebooksState转化为字符类型，这样才能正常不被switch绑定的时候覆写，也才能正常实现绑定
             for(var i=0;i<noteData.length;i++){
+                //将notebookState转化为字符类型，这样才能正常不被switch绑定的时候覆写，也才能正常实现绑定
                 noteData[i].notebookState = noteData[i].notebookState.toString()
+                
+                //将notebookCreateTime截取，只显示日期
+                noteData[i].notebookCreatedTime = noteData[i].notebookCreatedTime.slice(0,10)
             }
+            
             state.noteData = noteData
         },
         
@@ -66,6 +79,11 @@ const store = createStore({
         //更新要编辑的笔记
         updateNoteToEdit(state,notebookTitle){
             state.noteToEdit=notebookTitle
+        },
+
+        //批量管理笔记
+        updateChosenNotes(state,chosenNotes){
+            state.chosenNotes=chosenNotes
         }
     }
 });
