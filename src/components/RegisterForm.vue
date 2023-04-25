@@ -75,7 +75,6 @@ function register(){
     },
     headers:{
       'Content-Type':'application/json',
-      'Authorization': `Bearer ${store.state.token}`
     }
     }).then(response=>{
         console.log(response);

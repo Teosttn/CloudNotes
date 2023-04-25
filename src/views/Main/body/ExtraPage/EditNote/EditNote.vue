@@ -1,40 +1,108 @@
 <script setup>
 import {ref} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { computed,onBeforeMount } from 'vue';
+import { computed,onMounted } from 'vue';
 import { useStore } from 'vuex';
+import axios from 'axios';
+
+
 
 //通过localStorage获取token
 const token = localStorage.getItem('token');
 
+//初始化
 const store=useStore()
 const router = useRouter()
 const route = useRoute()
+const username = route.query.user
 
-const indexNum = route.query.id
-const NoteTypes = computed (()=>store.state.NoteTypes)
+//获取store里面的数据
+const noteTypes = computed (()=>store.state.noteTypes)
+const currentPage = computed (()=>store.state.currentPage)
 
-//通过Object.assign方法静态复制store state里面的数据，防止直接修改里面的数据
-//通过ref实现双向数据绑定，不然无法通过v-model绑定显示
-const Note = ref(Object.assign({},store.state.noteData[indexNum]))
-
-onBeforeMount(()=>{
-    console.log(indexNum);
-    if(Note.value.situ == true) Note.value.situ = '1'
-    else Note.value.situ = '2'
+const note = ref({
+    title:'',
+    classify:'',
+    situ:'',
+    description:'',
+    content:'',
 })
 
-function finishEditNote(){
-    if(Note.value.situ == '1') Note.value.situ=true
-    else Note.value.situ=false
-    store.state.noteData[indexNum]=Note.value
-    router.push('/Main')
-}
+//进行数据请求
+axios({
+    method:'get',
+    url:`api/notebooks/getNotebook` ,
+    headers:{
+        'Authorization': `${token}`
+    },
+    params:{
+        notebookTitle:store.state.noteToEdit
+    }
+    }).then(response=>{
+        console.log(response);
+        //获取数据
+        note.value.title=response.data.data.notebookTitle
+        note.value.classify=response.data.data.notebookType
+        note.value.situ=response.data.data.notebookState
+        note.value.description=response.data.data.notebookDescription
+        note.value.content=response.data.data.notebookContent
 
+      }).catch(error=>{
+        console.error(error);
+      })
+      
+      
+//取消编辑
 function cancelEditNote() {
-    router.push('/Main')
+    router.push({ path: '/Main', query: {usr:username} })
 }
+//完成编辑
+function finishEditNote(){
+    axios({
+    method:'put',
+    url:`api/notebooks/modifyAll` ,
+    headers:{
+        'Authorization': `${token}`
+    },
+    params:{
+        notebookTitle:store.state.noteToEdit
+    },
+    data:{
+        notebookTitle:note.value.title,
+        notebookType:note.value.classify,
+        notebookState:note.value.situ,
+        notebookDescription:note.value.description,
+        notebookContent:note.value.content
+    }
+    }).then(response=>{
+        updateNoteContent()
+        //修改成功
+      }).catch(error=>{
+        console.error(error);
+      })
+      
+      router.push({ path: '/Main', query: {usr:username} })
+}
+onMounted(()=>{
+    console.log(note.value.classify);
+})
 
+//更新笔记数据
+function updateNoteContent(){
+    axios({
+      method:'get',
+      url:`api/notebooks/page/${currentPage.value}/7` ,
+      headers:{
+          'Authorization': `${token}`
+      }
+    }).then(response=>{
+    console.log('获取表格数据成功');
+    //noteData.value=response.data.data.records
+    store.commit('updateNoteData',response.data.data.records)
+    }).catch (error=>{
+    console.error(error);
+    })
+}
 </script>   
 
 <template>
@@ -45,21 +113,22 @@ function cancelEditNote() {
             </div>
             <div class="Main">
                 <div class="MainForm">
-                    <el-form :inline="true" :model="Note" label-width="120px">
+                    <el-form :inline="true" :model="note" label-width="120px">
                         <el-form-item class="titleForm">
                             <template #label>
                                 <h2 class="labelWord">标题</h2>
                             </template>
-                            <el-input v-model="Note.title" placeholder="请输入标题" class="TitleInput"/>
+                            <el-input v-model="note.title" placeholder="请输入标题" class="TitleInput"/>
                         </el-form-item>
                         <el-form-item class="classifyForm">
                             <template #label>
                                 <h2 class="labelWord">分类</h2>
                             </template>
-                            <el-select v-model="Note.classify" class="classifyInput" placeholder="请选择" size="large" >
+                            <el-select v-model="note.classify" class="classifyInput" placeholder="请选择" size="large" >
                                 <el-option 
-                                    v-for="(value ,index) in NoteTypes"
+                                    v-for="(value ,index) in noteTypes"
                                     :value="value"
+                                    :key="index"
                                 />
                             </el-select>
                         </el-form-item>
@@ -67,24 +136,24 @@ function cancelEditNote() {
                             <template #label>
                                 <h2 class="labelWord">状态</h2>
                             </template>
-                            <el-radio-group v-model="Note.situ" class="situInput">
+                            <el-radio-group v-model="note.situ" class="situInput">
                                 <el-radio label="1" size="large" >显示</el-radio>
                                 <el-radio label="2" size="large" >隐藏</el-radio>
                             </el-radio-group>
                         </el-form-item>
                     </el-form>
-                    <el-form  :model="Note" label-width="120px">
+                    <el-form  :model="note" label-width="120px">
                         <el-form-item class="desForm" >
                             <template #label>
                                 <h2 class="labelWord">描述</h2>
                             </template>
-                            <el-input type="textarea" :row="4" class="DesInput" placeholder="请输入描述" v-model="Note.description"/>
+                            <el-input type="textarea" :row="4" class="DesInput" placeholder="请输入描述" v-model="note.situ"/>
                         </el-form-item>
                         <el-form-item class="contentForm">
                             <template #label>
                                 <h2 class="labelWord">内容</h2>
                             </template>
-                            <textarea  type="textarea" class="ContentInput" placeholder="请输入内容" v-model="Note.content"></textarea>
+                            <textarea  type="textarea" class="ContentInput" placeholder="请输入内容" v-model="note.content"></textarea>
                         </el-form-item>
                     </el-form>
                 </div>

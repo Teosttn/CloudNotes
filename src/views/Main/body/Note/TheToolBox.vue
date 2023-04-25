@@ -60,7 +60,7 @@ function editNote(){
   }
   else if(sum.value==1){
     var editId = computed(()=>store.state.chosenNoteOrder)
-    router.push({ path: '/Main/EditNote', query: { id:editId.value} })
+    router.push({ path: '/editNote', query: { id:editId.value} })
   }
   else {
     ElMessage({

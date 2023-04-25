@@ -9,10 +9,13 @@ import { useRouter } from 'vue-router';
 //通过localStorage获取token
 const token = localStorage.getItem('token');
 
+//初始化
 const router = useRouter()
 
+//初始化store和从里面获取数据
 const store = useStore()
-//从store获取与确认删除对话框绑定的值
+const currentPage = computed(()=>store.state.currentPage)
+
 const confirmVisible = computed({
     get:() => store.state.confirmDeleteVisible,
     set:(newValue) => { }
@@ -40,12 +43,10 @@ function deleteNote(){
     }).then(response=>{
         console.log(response);
         console.log('删除笔记成功');
-        return response;
+        updateNoteContent()
       }).catch(error=>{
         console.error(error);
       })
-
-    router.go(0)
 
     //关闭对话框
     store.commit('closeConfirmDelete')
@@ -53,6 +54,23 @@ function deleteNote(){
     message: '删除成功',
     type: 'success',
   })
+}
+
+//更新store里面的数据
+function updateNoteContent(){
+    axios({
+      method:'get',
+      url:`api/notebooks/page/${currentPage.value}/7` ,
+      headers:{
+          'Authorization': `${token}`
+      }
+    }).then(response=>{
+    console.log('获取表格数据成功');
+    //noteData.value=response.data.data.records
+    store.commit('updateNoteData',response.data.data.records)
+    }).catch (error=>{
+    console.error(error);
+    })
 }
 </script>
 

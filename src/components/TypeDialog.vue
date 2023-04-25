@@ -51,10 +51,27 @@ function addNoteType(notebooksType){
     }
     }).then(response=>{
         console.log('新建笔记分类成功');
+        updateNoteTypes()
       }).catch(error=>{
         console.error(error);
       })
-    router.go(0)
+}
+
+
+function updateNoteTypes(){
+    axios({
+    method:'get',
+    url:'api/notebooks/showType',
+    headers:{
+        'Authorization': ` ${token}`
+    }
+    }).then(response=>{
+        console.log('获取笔记分类成功');
+        //同步给vuex
+        store.commit('updateNoteTypes',response.data.data) 
+      }).catch(error=>{
+        console.error(error);
+      })
 }
 </script>
 

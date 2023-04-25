@@ -1,19 +1,21 @@
 <!-- 侧边栏 -->
 <script setup>
 import {LocationInformation, Plus,ArrowDown,Delete} from '@element-plus/icons-vue'
-import {onUpdated,ref,defineProps, onMounted,watch} from 'vue';
+import {onUpdated,ref,defineProps, onMounted,watch,computed} from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
-import router from '../../../../router';
 
 const prop=defineProps(['usr'])
 
 const store = useStore()   
-const NoteTypes = ref([])
+
+
 
 //通过localStorage获取token
 const token = localStorage.getItem('token');
 
+//通过computed获取vue里面的笔记分类数据，从而实现响应式
+const noteTypes = computed(()=>store.state.noteTypes)
 //向后台获取笔记分类
 function getNoteTypes(){
     axios({
@@ -24,30 +26,23 @@ function getNoteTypes(){
     }
     }).then(response=>{
         console.log('获取笔记分类成功');
-        NoteTypes.value=Object.values(response.data.data)
         //同步给vuex
-        store.commit('updateNoteTypes',NoteTypes.value) 
+        store.commit('updateNoteTypes',response.data.data) 
       }).catch(error=>{
         console.error(error);
       })
 }
 
-//监听笔记分类的数据，当其发生变化的时候，重新渲染界面以实现响应式更新
-onUpdated(()=>{
-    //  getNoteTypes()
-})
 
 //挂载的时候就获取笔记分类
 onMounted(()=>{
     getNoteTypes()
     console.log('获取笔记分类中');
-    
 })
 
 // 添加笔记分类
 function addNoteType(){
     store.commit('openTypeDialog')
-    //重新获取axios
 }
 
 //删除笔记分类
@@ -60,17 +55,18 @@ function deleteNoteType(index){
         'Authorization':`${token}`
     },
     params:{
-        notebookType:NoteTypes.value[index],    
+        notebookType:noteTypes.value[index],    
     }
     }).then(response=>{
         console.log('删除笔记分类成功');
-        //同步给vuex
-        // store.commit('updateNoteTypes',NoteTypes.value) 
+        //重新调用获取函数，更新store里面的数据
+        getNoteTypes()
       }).catch(error=>{
         console.error(error);
       })
-      router.go(0)
+
 }
+
 </script>   
 
 <template>
@@ -88,8 +84,8 @@ function deleteNoteType(index){
         <div class="SideBarList">
             <ul >
                 <div class="SideBarListLi">
-                    <li v-for=" (value,index) in NoteTypes" :key="index">
-                        <div class="SideBarListItem">{{value}}</div>
+                    <li v-for=" (item,index) in noteTypes" :key="index">
+                        <div class="SideBarListItem">{{ item }}</div>
                         <div class="SideBarListIcon">
                             <el-icon  @click="deleteNoteType(index)"><Delete/></el-icon>
                         </div>

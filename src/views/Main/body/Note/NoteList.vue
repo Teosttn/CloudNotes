@@ -1,40 +1,45 @@
 <script setup>
 import {watch,ref} from 'vue'
 import {Edit,Delete} from '@element-plus/icons-vue'
-import { computed,onMounted } from 'vue';
+import { computed,onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router'
 import { defineProps } from 'vue';
 import axios from 'axios';
+
+
 const prop = defineProps(['usr'])
 const router = useRouter()
 const store = useStore()
 
+
 //通过localStorage获取token
 const token = localStorage.getItem('token');
 
-//从store里面获取分页信息
+//从store里面获取数据
 const currentPage = computed(()=>store.state.currentPage)
+const noteData = computed(()=>store.state.noteData)
+
 
 //axios获取后台note数据
-const noteData = ref([])
 function getNoteContent(){
     axios({
-    method:'get',
-    url:`api/notebooks/page/${currentPage.value}/7` ,
-    headers:{
-        'Authorization': `${token}`
-    }
+      method:'get',
+      url:`api/notebooks/page/${currentPage.value}/7` ,
+      headers:{
+          'Authorization': `${token}`
+      }
     }).then(response=>{
-        console.log('获取表格数据成功');
-        noteData.value=response.data.data.records
-        console.log(noteData.value);
-        return response;
-      }).catch(error=>{
-        console.error(error);
-      })
+    console.log('获取表格数据成功');
+    //noteData.value=response.data.data.records
+    store.commit('updateNoteData',response.data.data.records)
+    console.log(noteData.value);
+    }).catch (error=>{
+    console.error(error);
+    })
 }
 
+//状态问题
 
 
 //删除笔记，同时删除后台笔记数据
@@ -44,20 +49,24 @@ function deleteSingleNote(index){
 
 //编辑笔记
 function editSingleNote(index){
-    router.push({path:'/editNote',query:{user:username.value}})
+    store.commit('updateNoteToEdit',noteData.value[index].notebookTitle)
+    router.push({path:'/editNote',query:{user:prop.usr}})
 }
 
 
-
-onMounted(() => {
+//初始化界面
+onBeforeMount(() => {
     console.log('获取表格数据中')
     getNoteContent()
+    // console.log(test.value);
 })
 
 watch(currentPage,(newValue,oldValue)=>{
     console.log(newValue);
     getNoteContent()
 })
+
+
 </script>   
 
 <template>
@@ -74,9 +83,13 @@ watch(currentPage,(newValue,oldValue)=>{
                 </el-table-column>
                 <el-table-column prop="notebookType" label="分类"  />
                 <el-table-column prop="notebookCreatedTime" label="创建时间"  />
-                <el-table-column prop="situ" label="状态"   >
+                <el-table-column prop="notebookState" label="状态"   >
                     <template #default="scope">
-                        <el-switch v-model="scope.row.situ" />
+                        <el-switch 
+                            v-model="scope.row.notebookState"
+                            active-value='1'
+                            inactive-value='0'
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column prop="" label="操作" header-align="center">

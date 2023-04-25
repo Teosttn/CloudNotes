@@ -4,8 +4,6 @@ import { useRouter,useRoute } from 'vue-router'
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
-import { defineProps } from 'vue';
-import { getBaseTransformPreset } from '@vue/compiler-core';
 
 
 //通过localStorage获取token
@@ -17,47 +15,48 @@ const router = useRouter()
 
 //使用computed响应式获取store中的数据，保证页面重新加载之后能避免被初始化为空数组
 const noteTypes = computed(() => store.state.noteTypes)
+const currentPage = computed(() => store.state.currentPage)
 
-const Note = ref({
+//获取创建笔记的时间
+let now = new Date();
+let dateStr = now.toLocaleDateString();
+const note = ref({
     choice:false,
     title:'',
     classify:'',
-    createTime:'2023/04/08',
+    createTime:dateStr,
     situ:'1',
     description:'',
     content:'',
 })
 
-// function finishAddNote() {
-//     if(Note.value.situ == '1') Note.value.situ=true
-//     else Note.value.situ=false
-//     // console.log(Note.value.situ)
-//     store.commit('addNote',Note.value)
-//     router.push('/Main')
-//     ElMessage({
-//     message: '新增笔记成功',
-//     type: 'success',
-//     })
-// }
+//取消新增笔记，返回上一界面
 function cancelAddNote() {
     router.go(-1)
 }
+
+//完成新增笔记，并调用新增笔记的接口
 function finishAddNote() {
+
+    console.log(note.value.situ);
     axios({
     method:'post',
     url:'api/notebooks/saveNotebook',
     headers:{
         'Content-Type':'application/json',
+        //进行token提交
         'Authorization': ` ${token}`
     },
+    //向后端传递新笔记的数据
     data:{
-        notebookType:Note.value.classify,
-        notebookTitle:Note.value.title,
-        notebookState:1,
-        notebookContent:Note.value.content,
-        notebookDescription:Note.value.description,
+        notebookType:note.value.classify,
+        notebookTitle:note.value.title,
+        notebookState:note.value.situ,
+        notebookContent:note.value.content,
+        notebookDescription:note.value.description,
     }
     }).then(response=>{
+        updateNoteContent()
         console.log(response)
       }).catch(error=>{
         console.error(error);
@@ -65,11 +64,29 @@ function finishAddNote() {
     router.go(-1)
 }
 
+//挂载的时候获取笔记分类内容
 onMounted(()=>{
     const noteTypes = computed(() => store.state.noteTypes)
     console.log(noteTypes.value);
     // console.log(token);
 })
+
+//更新store里面的笔记数据
+function updateNoteContent(){
+    axios({
+      method:'get',
+      url:`api/notebooks/page/${currentPage.value}/7` ,
+      headers:{
+          'Authorization': `${token}`
+      }
+    }).then(response=>{
+    console.log('获取表格数据成功');
+    //noteData.value=response.data.data.records
+    store.commit('updateNoteData',response.data.data.records)
+    }).catch (error=>{
+    console.error(error);
+    })
+}
 </script>   
 
 <template>
@@ -80,18 +97,18 @@ onMounted(()=>{
             </div>
             <div class="Main">
                 <div class="MainForm">
-                    <el-form :inline="true" :model="Note" label-width="120px">
+                    <el-form :inline="true" :model="note" label-width="120px">
                         <el-form-item class="titleForm">
                             <template #label>
                                 <h2 class="labelWord">标题</h2>
                             </template>
-                            <el-input v-model="Note.title" placeholder="请输入标题" class="TitleInput"/>
+                            <el-input v-model="note.title" placeholder="请输入标题" class="TitleInput"/>
                         </el-form-item>
                         <el-form-item class="classifyForm">
                             <template #label>
                                 <h2 class="labelWord">分类</h2>
                             </template>
-                            <el-select v-model="Note.classify" class="classifyInput" placeholder="请选择" size="large" >
+                            <el-select v-model="note.classify" class="classifyInput" placeholder="请选择" size="large" >
                                 <el-option 
                                 v-for="item in noteTypes"
                                 :value="item"
@@ -102,24 +119,24 @@ onMounted(()=>{
                             <template #label>
                                 <h2 class="labelWord">状态</h2>
                             </template>
-                            <el-radio-group v-model="Note.situ" class="situInput">
+                            <el-radio-group v-model="note.situ" class="situInput">
                                 <el-radio label="1" size="large" >显示</el-radio>
-                                <el-radio label="2" size="large" >隐藏</el-radio>
+                                <el-radio label="0" size="large" >隐藏</el-radio>
                             </el-radio-group>
                         </el-form-item>
                     </el-form>
-                    <el-form  :model="Note" label-width="120px">
+                    <el-form  :model="note" label-width="120px">
                         <el-form-item class="desForm" >
                             <template #label>
                                 <h2 class="labelWord">描述</h2>
                             </template>
-                            <el-input type="textarea" :row="4" class="DesInput" placeholder="请输入描述" v-model="Note.description"/>
+                            <el-input type="textarea" :row="4" class="DesInput" placeholder="请输入描述" v-model="note.description"/>
                         </el-form-item>
                         <el-form-item class="contentForm">
                             <template #label>
                                 <h2 class="labelWord">内容</h2>
                             </template>
-                            <textarea  type="textarea" class="ContentInput" placeholder="请输入内容" v-model="Note.content"></textarea>
+                            <textarea  type="textarea" class="ContentInput" placeholder="请输入内容" v-model="note.content"></textarea>
                         </el-form-item>
                     </el-form>
                 </div>

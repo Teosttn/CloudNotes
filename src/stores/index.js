@@ -1,10 +1,10 @@
-import { createApp } from 'vue'
 import { createStore } from 'vuex'
-import axios from 'axios'
 
 const store = createStore({
     state(){
         return{
+            //当前页的笔记内容
+            noteData:[],
             //笔记分类
             noteTypes:[],
             //控制添加笔记类型的对话框
@@ -16,6 +16,8 @@ const store = createStore({
             token:'',   
             //当前的笔记页数
             currentPage:1,
+            //控制要编辑的笔记
+            noteToEdit:''
         }
     },
     mutations:{
@@ -43,13 +45,27 @@ const store = createStore({
         },
 
         //更新笔记类型
-        updateNoteTypes(state,noteTypes){
-            state.noteTypes = noteTypes
+        updateNoteTypes(state,payload){
+            state.noteTypes = payload
+        },
+
+        //更新笔记内容
+        updateNoteData(state,noteData){
+            //将notebooksState转化为字符类型，这样才能正常不被switch绑定的时候覆写，也才能正常实现绑定
+            for(var i=0;i<noteData.length;i++){
+                noteData[i].notebookState = noteData[i].notebookState.toString()
+            }
+            state.noteData = noteData
         },
         
         //更新当前分页
         updateCurrentPage(state,currentPage){
             state.currentPage=currentPage
+        },
+
+        //更新要编辑的笔记
+        updateNoteToEdit(state,notebookTitle){
+            state.noteToEdit=notebookTitle
         }
     }
 });
