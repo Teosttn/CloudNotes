@@ -80,34 +80,49 @@ function login(){
       'Content-Type':'application/json'
     }
     }).then(response=>{
-
-        //登录时获取token
-        const token = response.data.data;
-
-        //通过vuex存储token
-        // store.commit('updateToken',token)
-
-        localStorage.setItem('token', token);
-        console.log('正在打印token');
-        console.log(token);
-
-
-        //登录验证
-        console.log('登录请求成功');
-        console.log(response);
-
-        //跳转到主界面
-        router.push({path:'/main',query:{user:username.value}})
+      console.log(response)
+      judgeLogin(response)
       }).catch(error=>{
 
         //登陆失败提示
         console.log('登录请求失败');
         console.error(error);
         ElMessage({
-          message: '账号或密码错误',
+          message: '出现未知错误',
           type: 'error',
           })
       })
+}
+
+
+//判断登陆是否成功
+function judgeLogin(response){
+  if(response.data.flag){
+    //获取token
+    const token = response.data.data;
+    //存储token
+    localStorage.setItem('token', token);
+    console.log('正在打印token'); 
+    console.log(token);
+    
+    //登录验证成功
+    console.log('登录请求成功');
+    console.log(response);
+
+    //跳转到主界面
+    router.push({path:'/main',query:{user:username.value}})
+    ElMessage({
+      message: response.data.msg,
+      type: 'success',
+    })
+  }
+  else{
+    //处理登陆失败的情况
+    ElMessage({
+      message: response.data.msg,
+      type: 'error',
+    })
+  }
 }
 
 </script>

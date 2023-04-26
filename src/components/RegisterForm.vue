@@ -42,7 +42,7 @@ function judgeInput(){
     })
     flag = false
   }
-  if(!Username.value && !Password1.value && !Password2.value){
+  if(!Username.value || !Password1.value || !Password2.value){
     ElMessage({
     message: '账号或密码不能为空',
     type: 'warning',
@@ -57,9 +57,6 @@ function judgeInput(){
  function finishRegister(){
   if(judgeInput()){
     register()
-
-    //注册完成进行路由跳转到登录界面
-    router.push('/')
   }
  }
 
@@ -77,16 +74,32 @@ function register(){
       'Content-Type':'application/json',
     }
     }).then(response=>{
-        console.log(response);
-        ElMessage({
-            message: '注册成功',
-            type: 'success',
-            })
+        judgeRegister(response)
       }).catch(error=>{
         console.error(error);
+        ElMessage({
+        message:'注册失败',
+        type:'error'
+        })
       })
 }
 
+//判断注册是否成功
+function judgeRegister(response){
+  if(response.data.flag){
+    ElMessage({
+      message:response.data.msg,
+      type:'success'
+    })
+    router.push('/')
+  }
+  else{
+    ElMessage({
+      message:'出现未知错误',
+      type:'error'
+    })
+  }
+}
 
 </script>
   
