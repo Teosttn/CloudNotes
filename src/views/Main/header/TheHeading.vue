@@ -1,12 +1,19 @@
 <script setup>
-import {MostlyCloudy,User,ArrowDown} from '@element-plus/icons-vue'
+import { MostlyCloudy,User,ArrowDown,Search } from '@element-plus/icons-vue'
 import { useRouter} from 'vue-router'
 import axios from 'axios';
-
+import { ref,computed } from 'vue';
 import { defineProps } from 'vue';
+import { useStore } from 'vuex';
+
+
+//通过localStorage获取token
+const token = localStorage.getItem('token');
 
 const prop = defineProps(['usr'])
 const router = useRouter()
+const store = useStore()
+
 //登出账号
 function loginOut(){
     axios({
@@ -21,17 +28,43 @@ function loginOut(){
         console.error(error);
       })
 }
-
 function handleLogOut(){
   loginOut()
   router.push('/')
 }
+
+//控制搜索功能
+
+const searchModeController = computed(()=>store.state.searchMode)
+const searchNotebookTitle = ref('')
+
+function searchNotebook(){
+  store.commit('updateSearchNotebook',searchNotebookTitle.value)
+  axios({
+    method:'get',
+    url:'api/notebooks/getNotebookByTitle',
+    headers:{
+      'Authorization':`${token}`
+    },
+    params:{
+      notebookTitle:searchNotebookTitle.value
+    }
+  }).then(response=>{
+    console.log('搜索成功');
+    store.commit('updateNoteData',response.data.data)
+    console.log(response);
+  }).catch(error=>{
+    console.error(error);
+  })
+}
+
 </script>
 
-<!-- 头部栏 -->
 <template>
-    <div>
-        <div class="Logo">
+
+    <div class="headerContainer">
+      <!-- logo -->
+      <div class="Logo">
         <h2 class="LogoWord">
           <el-icon>
             <MostlyCloudy />
@@ -39,22 +72,63 @@ function handleLogOut(){
           云端笔记
         </h2>
       </div>
-      <!-- 用户退出登录部分 -->
-      <div class="UserInf">
-        <el-icon :size="25"><User /></el-icon>
-        <el-dropdown class="UserInfDrop">
-          <el-icon :size="25"><ArrowDown /></el-icon>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item @click="handleLogOut">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-        </el-dropdown> 
-    </div>
+
+      <!-- 内容 -->
+      <div class="headerContent">
+        <!-- 搜索部分 -->
+        <div class="searchContainer" >
+
+          <div class="searchMain" v-if="searchModeController">
+            <h3 class="searchTitle">标题</h3>
+            <el-input
+            v-model="searchNotebookTitle"
+            class="searchInput"
+            placeholder="请输入标题"
+            :prefix-icon="Search"
+            />
+            <el-button color="rgb(61,100,169)" class="searchButton" @click="searchNotebook">搜索</el-button>
+          </div>
+
+        </div>
+        
+        <!-- 用户部分 -->
+        <div class="UserInf">
+
+          <el-icon :size="25"><User /></el-icon>
+          <el-dropdown class="UserInfDrop">
+            <el-icon :size="25"><ArrowDown /></el-icon>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="handleLogOut">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+          </el-dropdown> 
+
+        </div>
+      </div>
+
     </div>
 </template>
 
 <style scoped>
+
+
+.headerContainer{
+  width: 100%;
+}
+.headerContent{
+  display: flex;
+  flex-direction: row;
+}
+.searchContainer{
+  flex: 17;
+  display: flex;
+  flex-direction: row;
+}
+.searchMain{
+  display: flex;
+  flex-direction: row;
+}
 /* 左上角logo部分 */
 .Logo{
   background-color: palevioletred;
@@ -72,12 +146,14 @@ function handleLogOut(){
   margin-top: 10px;
   text-align: center;
   color: #FFF;
-  
+  margin-right: 10px;
 }
 
 /* 用户退出登录部分 */
 .UserInf{
-  float: right;
+  right: 0px;
+  flex: 1;
+  display: flex;
   padding-top: 20px;
   color: #FFF;
   
@@ -88,5 +164,23 @@ function handleLogOut(){
 .UserInfDrop{
   float: right;
   color: #FFF;
+}
+.searchContainer{
+  margin-top: 15px;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+}
+.searchTitle{
+  width: 40px;
+  color: #FFF;
+}
+.searchInput{
+  margin-left: 10px;
+  width: 300px;
+}
+.searchButton{
+  margin-left: 10px;
 }
 </style>

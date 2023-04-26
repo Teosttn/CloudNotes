@@ -102,6 +102,8 @@ function deleteNoteType(index){
 
 <style scoped>
 #SideBar{
+    display: flex;
+    flex-direction: column;
     width: 300px;
     height: 100%;
 }

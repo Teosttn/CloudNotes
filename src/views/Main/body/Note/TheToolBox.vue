@@ -1,18 +1,24 @@
 <!-- 工具箱：对笔记栏进行操作的按钮 -->
 <template>
-    <div>
+    <div class="buttonsContainer">
+      <div class="leftButtons">
         <el-button color="rgb(242,209,102)" :icon="Plus" class="ToolButton" @click="addNote">新增</el-button>
         <el-button color="rgb(244,159,180)" :icon="Edit" class="ToolButton" @click="editNote">修改</el-button>
         <el-button color="rgb(223,75,87)" :icon="Delete" class="ToolButton" @click="deleteNotes">删除</el-button>
         <el-button color="rgb(61,100,169)" :icon="Download" class="ToolButton" @click="outPutNotes">导出</el-button>
+      </div>
+      <div class="rightButtons">
+        <el-button :icon="Search" color="rgb(61,100,169)" @click="changeSearchMode" circle/>
+        <el-button :icon="RefreshLeft" color="rgb(61,100,169)" @click="refreshPage" circle/>
+      </div>
     </div>
 </template>
 
 <script setup>
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { computed ,ref,onMounted} from 'vue';
-import {Plus,Edit,Delete,Download} from '@element-plus/icons-vue'
+import { computed , ref, onMounted } from 'vue';
+import {Plus,Edit,Delete,Download,Search,RefreshLeft} from '@element-plus/icons-vue'
 import { defineProps } from 'vue';
 import axios from 'axios';
 
@@ -50,7 +56,7 @@ function deleteAttention(num){
     })
   }
 }
-
+//控制编辑操作的提示
 function editAttention(num){
   if(num == -1){
     ElMessage({
@@ -130,9 +136,25 @@ function updateNoteContent(){
     console.error(error);
     })
 }
+
+
+//切换搜索模式
+function changeSearchMode(){
+  store.commit('changeSearchMode')
+}
+
+//刷新界面
+function refreshPage(){
+  router.go(0)
+}
 </script>
 
 <style scoped>
+.buttonsContainer{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
 .ToolButton{
   margin-left: 30px;
   width: 90px;
@@ -145,4 +167,13 @@ function updateNoteContent(){
     0 3.0px 4px rgba(0, 0, 0, 0.280),
     0 4px 3px rgba(0, 0, 0, 0.1);
 }
+.leftButtons{
+  color: #FFF;
+  flex:9
+}
+.rightButtons{
+  color: #FFF;
+  flex: 1;
+}
+
 </style>

@@ -26,7 +26,12 @@ const store = createStore({
             noteToEdit:'',
     
             //控制批量管理笔记
-            chosenNotes:[]
+            chosenNotes:[],
+            
+            //搜索笔记板块
+            searchMode:false,
+            searchNotebook:''
+
         }
     },
     mutations:{
@@ -84,6 +89,14 @@ const store = createStore({
         //批量管理笔记
         updateChosenNotes(state,chosenNotes){
             state.chosenNotes=chosenNotes
+        },
+
+        //管理笔记搜索功能
+        changeSearchMode(state){
+            state.searchMode = !state.searchMode
+        },
+        updateSearchNotebook(state,notebookTitle){
+            state.searchNotebook = notebookTitle
         }
     }
 });
