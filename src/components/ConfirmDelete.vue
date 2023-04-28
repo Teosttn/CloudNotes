@@ -4,7 +4,8 @@ import {computed} from 'vue'
 import { useStore } from 'vuex';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-
+import { deleteNoteAPI,getNoteContentAPI } from '../api/note';
+import { messageBox } from '../utils/common';
 
 //通过localStorage获取token
 const token = localStorage.getItem('token');
@@ -28,50 +29,19 @@ function cancelDelete(){
 }
 
 //确认删除且关闭对话框
-function deleteNote(){
-    
-    //向后端发送删除请求
-    axios({
-    method:'delete',
-    url:'api/notebooks/delete',
-    params:{
-        notebookTitle:store.state.noteToDelete
-    },
-    headers:{
-        'Authorization':`${token}`
-    }
-    }).then(response=>{
-        console.log(response);
-        console.log('删除笔记成功');
-        updateNoteContent()
-      }).catch(error=>{
-        console.error(error);
-      })
-
-    //关闭对话框
-    store.commit('closeConfirmDelete')
-    ElMessage({
-    message: '删除成功',
-    type: 'success',
-  })
-}
-
-//更新store里面的数据
-function updateNoteContent(){
-    axios({
-      method:'get',
-      url:`api/notebooks/page/${currentPage.value}/7` ,
-      headers:{
-          'Authorization': `${token}`
-      }
-    }).then(response=>{
-    console.log('获取表格数据成功');
-    //noteData.value=response.data.data.records
-    store.commit('updateNoteData',response.data.data.records)
-    }).catch (error=>{
-    console.error(error);
+function handleDeleteNote(){
+    //进行axios笔记删除请求
+    deleteNoteAPI(store.state.noteToDelete,token).then(response=>{
+        //更新笔记数据
+        getNoteContentAPI(currentPage.value, token).then(records => {
+            store.commit('updateNoteData',records)
+        })
+        messageBox('删除笔记成功','success')
+        store.commit('closeConfirmDelete')
     })
 }
+
+
 </script>
 
 <template>
@@ -87,8 +57,8 @@ function updateNoteContent(){
                 <h3>请确认是否删除此笔记</h3>
             </div>
             <div class="attentionButtons">
-                <el-button @click="cancelDelete()">取消</el-button>
-                <el-button type="primary" @click="deleteNote()">确定</el-button>
+                <el-button color="rgb(242,209,102)"  @click="cancelDelete()">取消</el-button>
+                <el-button color="rgb(223,75,87)" type="primary" @click="handleDeleteNote()">确定</el-button>
             </div>
         </el-dialog>
     </div>

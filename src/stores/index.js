@@ -20,7 +20,9 @@ const store = createStore({
             token:'',   
             
             //当前的笔记页数
+            pageTurnMode:1,
             currentPage:1,
+            currentPageForSearch:1,
 
             //控制要编辑的笔记
             noteToEdit:'',
@@ -79,6 +81,12 @@ const store = createStore({
         //更新当前分页
         updateCurrentPage(state,currentPage){
             state.currentPage=currentPage
+        },
+        updateCurrentPageForSearch(state,currentPageForSearch){
+            state.currentPageForSearch=currentPageForSearch
+        },
+        changePageTurnMode(state){
+            state.pageTurnMode=0
         },
 
         //更新要编辑的笔记

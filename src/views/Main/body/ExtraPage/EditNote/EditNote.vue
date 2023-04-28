@@ -1,10 +1,11 @@
 <script setup>
 import {ref} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { computed,onMounted } from 'vue';
+import { computed,onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
-
+import { getNotebookAPI,submitEditNoteAPI } from '../../../../../api/note';
+import { messageBox } from '../../../../../utils/common';
 
 
 //通过localStorage获取token
@@ -20,6 +21,7 @@ const username = route.query.user
 const noteTypes = computed (()=>store.state.noteTypes)
 const currentPage = computed (()=>store.state.currentPage)
 
+//初始化数据
 const note = ref({
     title:'',
     classify:'',
@@ -27,30 +29,6 @@ const note = ref({
     description:'',
     content:'',
 })
-
-//进行数据请求
-axios({
-    method:'get',
-    url:`api/notebooks/getNotebook` ,
-    headers:{
-        'Authorization': `${token}`
-    },
-    params:{
-        notebookTitle:store.state.noteToEdit
-    }
-    }).then(response=>{
-        console.log(response);
-        //获取数据
-        note.value.title=response.data.data.notebookTitle
-        note.value.classify=response.data.data.notebookType
-        note.value.situ=response.data.data.notebookState.toString()
-        note.value.description=response.data.data.notebookDescription
-        note.value.content=response.data.data.notebookContent
-
-      }).catch(error=>{
-        console.error(error);
-      })
-      
       
 //取消编辑
 function cancelEditNote() {
@@ -58,55 +36,25 @@ function cancelEditNote() {
 }
 //完成编辑
 function finishEditNote(){
-    axios({
-    method:'put',
-    url:`api/notebooks/modifyAll` ,
-    headers:{
-        'Authorization': `${token}`
-    },
-    params:{
-        notebookTitle:store.state.noteToEdit
-    },
-    data:{
-        notebookTitle:note.value.title,
-        notebookType:note.value.classify,
-        notebookState:parseInt(note.value.situ),
-        notebookDescription:note.value.description,
-        notebookContent:note.value.content
-    }
-    }).then(response=>{
-        updateNoteContent()
-        ElMessage({
-            message:'修改笔记成功',
-            type:'success'
-        })
-        //修改成功
-      }).catch(error=>{
-        console.error(error);
-      })
-      
-      router.push({ path: '/Main', query: {usr:username} })
-}
-onMounted(()=>{
-    console.log(note.value.classify);
-})
-
-//更新笔记数据
-function updateNoteContent(){
-    axios({
-      method:'get',
-      url:`api/notebooks/page/${currentPage.value}/7` ,
-      headers:{
-          'Authorization': `${token}`
-      }
-    }).then(response=>{
-    console.log('获取表格数据成功');
-    //noteData.value=response.data.data.records
-    store.commit('updateNoteData',response.data.data.records)
-    }).catch (error=>{
-    console.error(error);
+    submitEditNoteAPI(store.state.noteToEdit,note.value,token).then(response=>{
+        messageBox('编辑笔记成功','success')
     })
+    router.push({ path: '/Main', query: {usr:username} })
 }
+
+//挂载组件时进行操作
+onBeforeMount(()=>{
+    console.log(note.value.classify);
+    //进行axios数据请求ss
+    getNotebookAPI(store.state.noteToEdit,token).then(data=>{
+        //对note进行数据初始化
+        note.value.title=data.notebookTitle
+        note.value.classify=data.notebookType
+        note.value.situ=data.notebookState.toString()
+        note.value.description=data.notebookDescription
+        note.value.content=data.notebookContent
+    })
+})
 </script>   
 
 <template>
@@ -151,7 +99,7 @@ function updateNoteContent(){
                             <template #label>
                                 <h2 class="labelWord">描述</h2>
                             </template>
-                            <el-input type="textarea" :row="4" class="DesInput" placeholder="请输入描述" v-model="note.situ"/>
+                            <el-input type="textarea" :row="4" class="DesInput" placeholder="请输入描述" v-model="note.description"/>
                         </el-form-item>
                         <el-form-item class="contentForm">
                             <template #label>
@@ -188,7 +136,7 @@ function updateNoteContent(){
     bottom: 0px;
     display: flex;
     flex-direction: column;
-    background: url(../../../../../assets/img/AddNoteBackground.jpg) no-repeat center;
+    background: url(../../../../../assets/img/editPage.jpg) no-repeat center;
     background-size: cover;
 }
 #Content{
@@ -197,9 +145,9 @@ function updateNoteContent(){
     margin-right: auto;
     padding-left: 40px;
     border-radius: 20px;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(10px);
     padding-bottom: 20px;
-    border: solid  rgba(255,192,203,0.8) 8px;
+    border: solid  rgba(61,100,169,0.8) 8px;
     box-shadow: 
     0 0.3px 0.7px rgba(0, 0, 0, 0.180),
     0 0.9px 1.7px rgba(0, 0, 0, 0.180),
@@ -210,7 +158,7 @@ function updateNoteContent(){
 .Title{
     text-align: center;
     margin-bottom: 20px;
-    color: rgb(255,192,203);
+    color: rgb(61,100,169)
 }
 .choiceForm{
     margin-left: 60px;
@@ -280,7 +228,7 @@ function updateNoteContent(){
    color: white;
 }
 .labelWord{
-    color: rgb(255,192,203) ;
+    color: rgb(61,100,169);
     text-align: center;
     background-color: white;
     width: 100px;

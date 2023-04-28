@@ -1,76 +1,52 @@
 <!-- 侧边栏 -->
 <script setup>
-import {LocationInformation, Plus,ArrowDown,Delete} from '@element-plus/icons-vue'
+import {LocationInformation, Plus,ArrowDown,Delete,ArrowRight} from '@element-plus/icons-vue'
 import {onUpdated,ref,defineProps, onMounted,watch,computed} from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
+import { getNoteTypesAPI,deleteNoteTypeAPI } from '../../../../api/note';
 
 const prop=defineProps(['usr'])
-
+const showMode=ref(true)
+const hideMode=ref(false)
 const store = useStore()   
-
-
 
 //通过localStorage获取token
 const token = localStorage.getItem('token');
 
 //通过computed获取vue里面的笔记分类数据，从而实现响应式
 const noteTypes = computed(()=>store.state.noteTypes)
-//向后台获取笔记分类
-function getNoteTypes(){
-    axios({
-    method:'get',
-    url:'api/notebooks/showType',
-    headers:{
-        'Authorization': ` ${token}`
-    }
-    }).then(response=>{
-        console.log('获取笔记分类成功');
-        //同步给vuex
-        store.commit('updateNoteTypes',response.data.data) 
-      }).catch(error=>{
-        console.error(error);
-      })
-}
-
 
 //挂载的时候就获取笔记分类
 onMounted(()=>{
-    getNoteTypes()
+    //axios获取笔记分类
+    getNoteTypesAPI(token).then(data=>{
+        store.commit('updateNoteTypes',data)
+    })
     console.log('获取笔记分类中');
 })
 
 // 添加笔记分类
-function addNoteType(){
+function addType(){
     store.commit('openTypeDialog')
 }
 
-//删除笔记分类
-function deleteNoteType(index){
-    axios({
-    method:'delete',
-    url:'api/notebooks/deleteType',
-    headers:{
-        'Content-Type':'application/x-www-form-urlencoded',
-        'Authorization':`${token}`
-    },
-    params:{
-        notebookType:noteTypes.value[index],    
-    }
-    }).then(response=>{
-        console.log('删除笔记分类成功');
-        //重新调用获取函数，更新store里面的数据
-        ElMessage({
-            message:'删除笔记分类成功',
-            type:'success'
+// 删除笔记分类 
+function deleteType(index){
+    //axios删除笔记分类
+    deleteNoteTypeAPI(noteTypes.value[index],token).then(response=>{
+        //axios再次获取笔记分类
+        getNoteTypesAPI(token).then(data=>{
+            store.commit('updateNoteTypes',data)
         })
-        getNoteTypes()
-      }).catch(error=>{
-        console.error(error);
-      })
-
+    })
 }
 
+//折叠侧边栏
+function changeShowMode(){
+    showMode.value = !showMode.value
+    hideMode.value = !hideMode.value
+}
 </script>   
 
 <template>
@@ -80,18 +56,21 @@ function deleteNoteType(index){
             <el-icon class="SideBarTitleIcon"><LocationInformation/></el-icon>
             <p class="SideBarTitleWord">笔记分类</p>
             <div class="SideBarTitleTools">
-                <el-icon class="SideBarTitleIcon" @click="addNoteType"><Plus/></el-icon>
-                <el-icon class="SideBarTitleIcon" ><ArrowDown/></el-icon>
+                <el-icon class="SideBarTitleIcon" @click="addType"><Plus/></el-icon>
+                <el-icon class="SideBarTitleIcon" @click="changeShowMode">
+                    <ArrowDown v-if="showMode"/>
+                    <ArrowRight v-if="hideMode"/>
+                </el-icon>
             </div>
         </div>
         <!-- 侧边栏内容 笔记分类的类别 -->
         <div class="SideBarList">
             <ul >
-                <div class="SideBarListLi">
+                <div class="SideBarListLi" v-if="showMode">
                     <li v-for=" (item,index) in noteTypes" :key="index">
                         <div class="SideBarListItem">{{ item }}</div>
                         <div class="SideBarListIcon">
-                            <el-icon  @click="deleteNoteType(index)"><Delete/></el-icon>
+                            <el-icon  @click="deleteType(index)"><Delete/></el-icon>
                         </div>
                     </li>
                 </div>

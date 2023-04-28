@@ -4,7 +4,8 @@ import { useRouter,useRoute } from 'vue-router'
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
-
+import { addNoteAPI,getNoteContentAPI } from '../../../../../api/note';
+import { messageBox } from '../../../../../utils/common';
 
 //通过localStorage获取token
 const token = localStorage.getItem('token');
@@ -20,6 +21,7 @@ const currentPage = computed(() => store.state.currentPage)
 //获取创建笔记的时间
 let now = new Date();
 let dateStr = now.toLocaleDateString();
+//初始化数据
 const note = ref({
     choice:false,
     title:'',
@@ -37,30 +39,12 @@ function cancelAddNote() {
 
 //完成新增笔记，并调用新增笔记的接口
 function finishAddNote() {
-
-    console.log(note.value.situ);
-    axios({
-    method:'post',
-    url:'api/notebooks/saveNotebook',
-    headers:{
-        'Content-Type':'application/json',
-        //进行token提交
-        'Authorization': ` ${token}`
-    },
-    //向后端传递新笔记的数据
-    data:{
-        notebookType:note.value.classify,
-        notebookTitle:note.value.title,
-        notebookState:note.value.situ,
-        notebookContent:note.value.content,
-        notebookDescription:note.value.description,
-    }
-    }).then(response=>{
-        updateNoteContent()
-        console.log(response)
-      }).catch(error=>{
-        console.error(error);
-      })
+    addNoteAPI(note.value,token).then(response=>{
+        getNoteContentAPI(currentPage.value,token).then(records=>{
+            store.commit('updateNoteData',records)
+        })
+        messageBox('添加笔记成功','success')
+    })
     router.go(-1)
 }
 
@@ -71,22 +55,6 @@ onMounted(()=>{
     // console.log(token);
 })
 
-//更新store里面的笔记数据
-function updateNoteContent(){
-    axios({
-      method:'get',
-      url:`api/notebooks/page/${currentPage.value}/7` ,
-      headers:{
-          'Authorization': `${token}`
-      }
-    }).then(response=>{
-    console.log('获取表格数据成功');
-    //noteData.value=response.data.data.records
-    store.commit('updateNoteData',response.data.data.records)
-    }).catch (error=>{
-    console.error(error);
-    })
-}
 </script>   
 
 <template>

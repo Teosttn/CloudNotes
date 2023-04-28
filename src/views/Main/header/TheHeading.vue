@@ -5,7 +5,8 @@ import axios from 'axios';
 import { ref,computed } from 'vue';
 import { defineProps } from 'vue';
 import { useStore } from 'vuex';
-
+import { loginOutAPI } from '../../../api/user';
+import { searchNotebookAPI } from '../../../api/note'
 
 //通过localStorage获取token
 const token = localStorage.getItem('token');
@@ -14,22 +15,12 @@ const prop = defineProps(['usr'])
 const router = useRouter()
 const store = useStore()
 
-//登出账号
-function loginOut(){
-    axios({
-    method:'post',
-    url:'api/users/logout',
-    headers:{
-      'Content-Type':'application/x-www-form-urlencoded'
-    }
-    }).then(response=>{
-        console.log(response);
-      }).catch(error=>{
-        console.error(error);
-      })
-}
+//处理登出操作
 function handleLogOut(){
-  loginOut()
+  loginOutAPI().then((response=>{
+    //清除token
+    localStorage.removeItem('token');
+  }))
   router.push('/')
 }
 
@@ -37,24 +28,13 @@ function handleLogOut(){
 
 const searchModeController = computed(()=>store.state.searchMode)
 const searchNotebookTitle = ref('')
+const currentPageForSearch = computed(()=>store.state.currentPageForSearch)
 
 function searchNotebook(){
+  store.commit('changePageTurnMode')
   store.commit('updateSearchNotebook',searchNotebookTitle.value)
-  axios({
-    method:'get',
-    url:'api/notebooks/getNotebookByTitle',
-    headers:{
-      'Authorization':`${token}`
-    },
-    params:{
-      notebookTitle:searchNotebookTitle.value
-    }
-  }).then(response=>{
-    console.log('搜索成功');
-    store.commit('updateNoteData',response.data.data)
-    console.log(response);
-  }).catch(error=>{
-    console.error(error);
+  searchNotebookAPI(searchNotebookTitle.value,currentPageForSearch.value,token).then(response=>{
+    store.commit('updateNoteData',response.data.data.records)
   })
 }
 
@@ -79,7 +59,7 @@ function searchNotebook(){
         <div class="searchContainer" >
 
           <div class="searchMain" v-if="searchModeController">
-            <h3 class="searchTitle">标题</h3>
+            <div ><img src="../../../assets/img/searchTitle.gif" class="searchTitle"/></div>
             <el-input
             v-model="searchNotebookTitle"
             class="searchInput"
@@ -173,11 +153,13 @@ function searchNotebook(){
   margin-bottom: 20px;
 }
 .searchTitle{
+  border-radius: 5px;
   width: 40px;
   color: #FFF;
 }
 .searchInput{
   margin-left: 10px;
+  height: 35px;
   width: 300px;
 }
 .searchButton{

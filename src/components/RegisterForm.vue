@@ -22,6 +22,8 @@ import { useRouter} from 'vue-router'
 import { User,Key } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { useStore } from 'vuex'
+import { registerAPI } from '../api/user'
+import { messageBox } from '../utils/common'
 
 const store = useStore()
 //初始化路由
@@ -36,17 +38,11 @@ const router = useRouter()
 function judgeInput(){
   var flag = true
   if(Password1.value != Password2.value){
-    ElMessage({
-    message: '两次输入的密码不一致',
-    type: 'warning',
-    })
+    messageBox('两次输入的密码不一致','warning')
     flag = false
   }
   if(!Username.value || !Password1.value || !Password2.value){
-    ElMessage({
-    message: '账号或密码不能为空',
-    type: 'warning',
-    })
+    messageBox('账号或密码不能为空','warning')
     flag = false
   }
   
@@ -63,41 +59,19 @@ function judgeInput(){
 
 // 进行axios请求
 function register(){
-    axios({
-    method:'post',
-    url:'api/users/register',
-    data:{
-      username:Username.value,
-      password:Password1.value
-    },
-    headers:{
-      'Content-Type':'application/json',
-    }
-    }).then(response=>{
-        judgeRegister(response)
-      }).catch(error=>{
-        console.error(error);
-        ElMessage({
-        message:'注册失败',
-        type:'error'
-        })
-      })
+  registerAPI(Username.value,Password1.value).then(response=>{
+    judgeRegister(response)
+  })
 }
 
 //判断注册是否成功
 function judgeRegister(response){
   if(response.data.flag){
-    ElMessage({
-      message:response.data.msg,
-      type:'success'
-    })
+    messageBox('注册成功','success')
     router.push('/')
   }
   else{
-    ElMessage({
-      message:'出现未知错误',
-      type:'error'
-    })
+    messageBox('出现未知错误','error')
   }
 }
 

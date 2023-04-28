@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { messageBox } from '../utils/common'
 
 const Home =()=> import('../views/Home/Home.vue')
 const Register =()=> import('../views/Home/Register/RegisterPage.vue')
@@ -36,6 +37,17 @@ const routes= [
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+
+//创建路由守卫，检查是否有token
+router.beforeEach((to, from) => {
+  const token = localStorage.getItem('token');
+  //添加判断，避免无限重定向和阻止注册
+  if(!token && to.name !== Register &&to.name !== Home) {
+    messageBox('请登录后再试','error')
+    return {name:Home}
+  }
 })
 
 export default router

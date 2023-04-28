@@ -21,6 +21,8 @@ import { computed , ref, onMounted } from 'vue';
 import {Plus,Edit,Delete,Download,Search,RefreshLeft} from '@element-plus/icons-vue'
 import { defineProps } from 'vue';
 import axios from 'axios';
+import { deleteNotesInBatchAPI,getNoteContentAPI } from '../../../../api/note'
+import { messageBox } from '../../../../utils/common';
 
 
 //通过localStorage获取token
@@ -44,69 +46,44 @@ function addNote() {
 // 对操作进行提示
 function deleteAttention(num){
   if(num){
-    ElMessage({
-    message: '批量删除笔记成功',
-    type: 'success',
-    })
+    messageBox('批量删除笔记成功','success')
   }
   else{
-    ElMessage({
-    message: '请选中笔记',
-    type: 'warning',
-    })
+    messageBox('请选中笔记','warning')
   }
 }
 //控制编辑操作的提示
 function editAttention(num){
   if(num == -1){
-    ElMessage({
-    message: '编辑笔记成功',
-    type: 'success',
-    })
+    messageBox('编辑笔记成功','success')
   }
   else if(num > 1){
-    ElMessage({
-    message: '仅支持修改单个笔记',
-    })
+    messageBox('仅支持修改单个笔记','')
   }
   else if(num <1){
-    ElMessage({
-    message: '请选中要修改的笔记',
-    type:'warning'
-    })
+    messageBox('请选中要修改的笔记','warning')
   }
 }
 
 // 点击删除按钮，实现笔记批量删除
 function deleteNotes(){
     console.log('准备删除笔记');
-    deleteAttention(chosenNotes.value.length)
+    const params = ref('')
     chosenNotes.value.forEach(element => {
-      axios({
-        method:'delete',
-        url:`api/notebooks/deleteAll`,
-        params:{
-          notebookTitle:element.notebookTitle
-        },
-        headers:{
-          'Authorization': `${token}`,
-          'Content-Type':'application/x-www-form-urlencoded'
-        }
-      }).then(response=>{
-        console.log('删除笔记成功');
-        updateNoteContent()
-      }).catch(error=>{
-        console.error(error);
-      })
+      params.value+=element.notebookTitle+","
     });
+    deleteAttention(chosenNotes.value.length)
+    deleteNotesInBatchAPI(params.value,token).then(response=>{
+      //axios重新获取数据
+        getNoteContentAPI(currentPage.value, token).then(records => {
+          store.commit('updateNoteData',records)
+        })
+    })
 }
 
 // 点击导出按钮，将笔记表格导出成excel表 ,暂未实现
 function outPutNotes(){
-  ElMessage({
-    message: '暂无此功能',
-    type: 'error',
-  })
+  messageBox('暂无此功能','error')
 }
 
 
@@ -118,25 +95,6 @@ function editNote(){
     router.push({path:'/editNote',query:{user:prop.usr}})
   }
 }
-
-
-//进行操作之后重新进行数据请求
-function updateNoteContent(){
-    axios({
-      method:'get',
-      url:`api/notebooks/page/${currentPage.value}/7` ,
-      headers:{
-          'Authorization': `${token}`
-      }
-    }).then(response=>{
-    console.log('获取表格数据成功');
-    //noteData.value=response.data.data.records
-    store.commit('updateNoteData',response.data.data.records)
-    }).catch (error=>{
-    console.error(error);
-    })
-}
-
 
 //切换搜索模式
 function changeSearchMode(){

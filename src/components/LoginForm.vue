@@ -37,6 +37,9 @@ import {ref} from 'vue'
 import { useRouter} from 'vue-router'
 import axios from 'axios';
 import { useStore } from 'vuex';
+import { loginAPI } from '../api/user';
+import { messageBox } from '../utils/common';
+
 //初始化路由，仓库等
 const store = useStore()
 const router = useRouter()
@@ -50,10 +53,7 @@ const password=ref('')
 function judgeInput(){
   var flag = true
   if(!username.value && !password.value){
-    ElMessage({
-    message: '账号或密码不能为空',
-    type: 'warning',
-    })
+    messageBox('账号或密码不能为空','warning')
     flag = false
   }
   return flag
@@ -69,29 +69,9 @@ function submitAccount() {
 
 //进行axois异步请求
 function login(){
-    axios({
-    method:'post',
-    url:'api/users/login',
-    data:{
-      username:username.value,
-      password:password.value
-    },
-    headers:{
-      'Content-Type':'application/json'
-    }
-    }).then(response=>{
-      console.log(response)
-      judgeLogin(response)
-      }).catch(error=>{
-
-        //登陆失败提示
-        console.log('登录请求失败');
-        console.error(error);
-        ElMessage({
-          message: '出现未知错误',
-          type: 'error',
-          })
-      })
+  loginAPI(username.value,password.value).then(response=>[
+    judgeLogin(response)
+  ])
 }
 
 
@@ -111,17 +91,12 @@ function judgeLogin(response){
 
     //跳转到主界面
     router.push({path:'/main',query:{user:username.value}})
-    ElMessage({
-      message: response.data.msg,
-      type: 'success',
-    })
+    
+    messageBox(response.data.msg,'success')
   }
   else{
     //处理登陆失败的情况
-    ElMessage({
-      message: response.data.msg,
-      type: 'error',
-    })
+    messageBox(response.data.msg,'error')
   }
 }
 

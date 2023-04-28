@@ -1,11 +1,11 @@
 <script setup>
-import {watch,ref} from 'vue'
+import {watch,ref, getCurrentInstance} from 'vue'
 import {Edit,Delete} from '@element-plus/icons-vue'
 import { computed,onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter, useRoute } from 'vue-router'
 import { defineProps } from 'vue';
-import axios, { Axios } from 'axios';
+import { getNoteContentAPI,changeNotebookStateAPI } from '../../../../api/note';
 
 //初始化
 const prop = defineProps(['usr'])
@@ -17,48 +17,14 @@ const token = localStorage.getItem('token');
 
 //从store里面获取数据
 const currentPage = computed(()=>store.state.currentPage)
+
 const noteData = computed(()=>store.state.noteData)
-
-
-//axios获取后台note数据
-function getNoteContent(){
-    axios({
-      method:'get',
-      url:`api/notebooks/page/${currentPage.value}/7` ,
-      headers:{
-          'Authorization': `${token}`
-      }
-    }).then(response=>{
-    console.log('获取表格数据成功');
-    //noteData.value=response.data.data.records
-    store.commit('updateNoteData',response.data.data.records)
-    console.log(noteData.value);
-    }).catch (error=>{
-    console.error(error);
-    })
-}
 
 //处理更改状态的问题
 function handleStateChange(title,state){
     console.log(title,state);
-    axios({
-        method:'put',
-        url:`api/notebooks/modifyState`,
-        params:{
-            notebookTitle:title,
-            state:parseInt(state)
-        },
-        headers:{
-          'Authorization': `${token}`,
-          'Content-Type':'application/x-www-form-urlencoded'
-        }
-    }).then(response=>{
-        console.log('更改状态成功');
-    }).catch(error=>{
-        console.error(error);
-    })
+    changeNotebookStateAPI(title,state,token)
 }
-
 
 //删除笔记，同时删除后台笔记数据
 function deleteSingleNote(index){
@@ -75,13 +41,18 @@ function editSingleNote(index){
 //初始化界面
 onBeforeMount(() => {
     console.log('获取表格数据中')
-    getNoteContent()
-    // console.log(test.value);
+    //axios获取笔记数据
+    getNoteContentAPI(currentPage.value, token).then(records => {
+        store.commit('updateNoteData',records)
+    })
 })
 
 watch(currentPage,(newValue,oldValue)=>{
     console.log(newValue);
-    getNoteContent()
+    //axios获取笔记数据
+    getNoteContentAPI(currentPage.value, token).then(records => {
+        store.commit('updateNoteData',records)
+    })
 })
 
 //批量操作笔记，处理多选问题
