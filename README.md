@@ -1,6 +1,6 @@
-# werun-test
+# Cloud-Notes
 
-This template should help get you started developing with Vue 3 in Vite.
+This project is a simple cloud note website designed using Vue3, Vuex, Vue Router, and Axios for the front-end, and SpringBoot, MyBatisPlus, and Shiro for the back-end. It is capable of performing basic cloud note management functions.
 
 ## Recommended IDE Setup
 
